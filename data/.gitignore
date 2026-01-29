@@ -1,0 +1,3 @@
+# Ignore all customer data; do not commit documents or outputs.
+# Only the folder structure and README are versioned.
+customers/
