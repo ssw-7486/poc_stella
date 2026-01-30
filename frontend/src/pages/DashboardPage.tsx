@@ -143,13 +143,29 @@ export function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-navy">Job List</h2>
                 <div className="flex items-center gap-2">
-                  <select className="pl-3 pr-8 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
+                  <select
+                    className="pl-3 pr-10 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2307464C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.25em 1.25em'
+                    }}
+                  >
                     <option>All Status</option>
                     <option>Completed</option>
                     <option>Processing</option>
                     <option>Queued</option>
                   </select>
-                  <select className="pl-3 pr-8 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
+                  <select
+                    className="pl-3 pr-10 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2307464C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.25em 1.25em'
+                    }}
+                  >
                     <option>All Customers</option>
                     <option>customer1</option>
                     <option>customer2</option>
