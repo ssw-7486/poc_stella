@@ -67,9 +67,9 @@ export function DashboardPage() {
             <div className="text-3xl font-bold text-navy">{stats.totalJobs}</div>
           </Card>
 
-          {/* Success Rate */}
+          {/* Accuracy Rate */}
           <Card>
-            <div className="text-navy/60 text-sm font-medium mb-1">Success Rate</div>
+            <div className="text-navy/60 text-sm font-medium mb-1">Accuracy Rate</div>
             <div className="text-3xl font-bold text-green">{stats.successRate}</div>
           </Card>
 
@@ -97,6 +97,17 @@ export function DashboardPage() {
         <div className="grid grid-cols-3 gap-6">
           {/* Left Panel: Activity */}
           <section className="space-y-4">
+            {/* System Health */}
+            <Card title="System Health">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green rounded-full"></span>
+                  <span className="text-sm text-navy font-medium">All Systems OK</span>
+                </div>
+                <div className="text-sm text-navy/60">Queue: 142 jobs</div>
+              </div>
+            </Card>
+
             {/* Current Batch */}
             <Card title="Current Batch">
               <div className="space-y-2">
@@ -122,17 +133,6 @@ export function DashboardPage() {
                   </li>
                 ))}
               </ul>
-            </Card>
-
-            {/* System Health */}
-            <Card title="System Health">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green rounded-full"></span>
-                  <span className="text-sm text-navy font-medium">All Systems OK</span>
-                </div>
-                <div className="text-sm text-navy/60">Queue: 142 jobs</div>
-              </div>
             </Card>
           </section>
 
