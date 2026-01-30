@@ -5,6 +5,7 @@
   --color-navy-darkest: #07464C;
   --color-navy-dark: #0B6873;
   --color-primary: #12AEBF;
+  --color-primary-medium: #4AB8C8;
   --color-primary-light: #71CED9;
   --color-primary-lighter: #A0DFE5;
   --color-primary-lightest: #D0EFF2;
@@ -16,12 +17,12 @@
 
   /* Legacy color mappings for existing components */
   --color-blue: #12AEBF;
-  --color-green: #71CED9;
-  --color-green-button: #71CED9;
+  --color-green: #4AB8C8;
+  --color-green-button: #4AB8C8;
   --color-navy: #07464C;
   --color-card-bg: #F0EFEF;
   --color-input-section-bg: #A0DFE5;
-  --color-input-border: #71CED9;
+  --color-input-border: #0B6873;
 
   --radius: 12px;
 }
