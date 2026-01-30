@@ -143,13 +143,13 @@ export function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-navy">Job List</h2>
                 <div className="flex items-center gap-2">
-                  <select className="px-3 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
+                  <select className="pl-3 pr-8 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
                     <option>All Status</option>
                     <option>Completed</option>
                     <option>Processing</option>
                     <option>Queued</option>
                   </select>
-                  <select className="px-3 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
+                  <select className="pl-3 pr-8 py-1.5 text-sm border border-input-border bg-input-section-bg text-navy rounded-md">
                     <option>All Customers</option>
                     <option>customer1</option>
                     <option>customer2</option>
