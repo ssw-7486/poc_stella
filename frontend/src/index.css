@@ -12,13 +12,14 @@
   /* Greys */
   --color-gray-dark: #888888;
   --color-gray-light: #DDDDDD;
+  --color-gray-lightest: #F0EFEF;
 
   /* Legacy color mappings for existing components */
   --color-blue: #12AEBF;
   --color-green: #71CED9;
   --color-green-button: #71CED9;
   --color-navy: #07464C;
-  --color-card-bg: #D0EFF2;
+  --color-card-bg: #F0EFEF;
   --color-input-section-bg: #A0DFE5;
   --color-input-border: #71CED9;
 
