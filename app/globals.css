@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Color Palette - from susi/globals.css */
+  --blue: #12adbf;
+  --green: #25e377;
+  --navy: #00343f;
+  --white: #fff;
+  --card-bg: #f4fdfc;
+  --input-section-bg: #e8f8f6;
+  --input-border: #5fc4d4;
+
+  /* Design Tokens */
+  --background: var(--card-bg);
+  --foreground: var(--navy);
+  --card: var(--white);
+  --card-foreground: var(--navy);
+  --primary: var(--blue);
+  --primary-foreground: var(--white);
+  --secondary: var(--green);
+  --secondary-foreground: var(--navy);
+  --border-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+button,
+input,
+select,
+textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Ensure touch targets are 44x44px minimum */
+button,
+a,
+input[type='checkbox'],
+input[type='radio'] {
+  min-width: 44px;
+  min-height: 44px;
+}
