@@ -24,7 +24,7 @@ export function Button({
 
   const variantStyles = {
     primary: 'bg-blue text-white hover:opacity-90 active:scale-[0.98]',
-    secondary: 'bg-green text-white hover:opacity-90 active:scale-[0.98]',
+    secondary: 'bg-green-button text-white hover:opacity-90 active:scale-[0.98]',
     outline: 'border-2 border-blue text-blue bg-transparent hover:bg-blue hover:text-white',
   };
 
