@@ -2,28 +2,47 @@
 
 ## Color Scheme
 
-Based on the [susi/globals.css](https://github.com/ssw-7486/susi/blob/main/app/globals.css)
+### Monochrome Teal Palette
+A cohesive teal color system ranging from dark navy to light cyan.
 
-### Primary Colors
-- **Blue (Primary)**: `#12adbf` - Main interactions, links, primary CTAs
-- **Green (Secondary)**: `#25e377` - Success states, secondary CTAs
-- **Navy (Foreground)**: `#00343f` - Text and dark elements
-- **White**: `#fff` - Pure white for cards and contrasts
+**Primary Scale:**
+- **Navy Darkest**: `#07464C` - Primary text, headers, dark backgrounds
+- **Navy Dark**: `#0B6873` - Secondary text, darker accents
+- **Primary**: `#12AEBF` - Main interactions, links, primary CTAs
+- **Primary Light**: `#71CED9` - Hover states, secondary actions, accents
+- **Primary Lighter**: `#A0DFE5` - Input backgrounds, subtle highlights
+- **Primary Lightest**: `#D0EFF2` - Card backgrounds, page backgrounds
 
-### Background & Surface Colors
-- **Card Background**: `#f4fdfc` - Off-white for page backgrounds
-- **Input Section**: `#e8f8f6` - Form section backgrounds
-- **Input Border**: `#5fc4d4` - 30% softer/lighter than blue
+**Neutral Greys:**
+- **Dark Grey**: `#888888` - Borders, disabled states, muted text
+- **Light Grey**: `#DDDDDD` - Dividers, subtle backgrounds
+
+**White:**
+- **White**: `#FFFFFF` - Card surfaces, contrasting elements
 
 ### Design Tokens (Tailwind CSS Variables)
 ```css
---background: #f4fdfc
---foreground: #00343f
---card: #fff
---primary: #12adbf
---secondary: #25e377
---border-radius: 12px
+/* Monochrome Teal Palette */
+--color-navy-darkest: #07464C
+--color-navy-dark: #0B6873
+--color-primary: #12AEBF
+--color-primary-light: #71CED9
+--color-primary-lighter: #A0DFE5
+--color-primary-lightest: #D0EFF2
+
+/* Greys */
+--color-gray-dark: #888888
+--color-gray-light: #DDDDDD
+
+--radius: 12px
 ```
+
+### Color Usage Guidelines
+- **Text**: Use Navy Darkest (#07464C) for primary text, Navy Dark (#0B6873) for secondary
+- **Backgrounds**: Primary Lightest (#D0EFF2) for page backgrounds, White (#FFFFFF) for cards
+- **Interactive Elements**: Primary (#12AEBF) for buttons/links, Primary Light (#71CED9) for hover states
+- **Borders**: Primary Light (#71CED9) for focus states, Dark Grey (#888888) for default borders
+- **Status Indicators**: Primary Light (#71CED9) for success/completion states
 
 ---
 
@@ -57,28 +76,34 @@ Follow 8px base grid:
 ## Components
 
 ### Buttons
-- **Primary**: Blue background, white text, 12px border radius
-- **Secondary**: Green background, white text, 12px border radius
-- **Outline**: Transparent background, border, colored text
+- **Primary**: Primary (#12AEBF) background, white text, 12px border radius
+- **Secondary**: Primary Light (#71CED9) background, white text, 12px border radius
+- **Outline**: Transparent background, Primary border, Primary text
 - **Minimum size**: 44×44px (touch-friendly)
+- **Hover**: 90% opacity or darker shade
 
 ### Cards
-- **Background**: White (#fff)
+- **Background**: White (#FFFFFF)
+- **Border**: Optional 1px solid Light Grey (#DDDDDD)
 - **Border Radius**: 12px
 - **Shadow**: Subtle drop shadow
 - **Padding**: 24px (1.5rem)
 
 ### Inputs
-- **Background**: Input section (#e8f8f6)
-- **Border**: 1px solid #5fc4d4
+- **Background**: Primary Lighter (#A0DFE5)
+- **Border**: 1px solid Primary Light (#71CED9)
 - **Border Radius**: 12px
 - **Padding**: 12px 16px
-- **Focus**: 2px solid outline with offset
+- **Focus**: 2px solid Primary outline with offset
+- **Text**: Navy Darkest (#07464C)
 
 ### Badges
 - **Border Radius**: 8px
 - **Padding**: 4px 12px
-- **Variants**: success (green), warning (yellow), error (red), info (blue)
+- **Variants**:
+  - Success: Primary Light (#71CED9) background
+  - Info: Primary (#12AEBF) background
+  - Neutral: Dark Grey (#888888) background
 
 ---
 
