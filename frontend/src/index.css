@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
-:root {
-  --blue: #12adbf;
-  --green: #25e377;
-  --navy: #00343f;
-  --card-bg: #f4fdfc;
-  --input-section-bg: #e8f8f6;
-  --input-border: #5fc4d4;
+@theme {
+  --color-blue: #12adbf;
+  --color-green: #25e377;
+  --color-navy: #00343f;
+  --color-card-bg: #f4fdfc;
+  --color-input-section-bg: #e8f8f6;
+  --color-input-border: #5fc4d4;
+
+  --radius: 12px;
 }
 
 body {
