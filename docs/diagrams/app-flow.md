@@ -13,7 +13,7 @@ This diagram visualizes the complete application navigation structure, including
 
 ```mermaid
 flowchart LR
-    Start([User Entry]) --> Root[/ Root Route /]
+    Start([User Entry]) --> Root[Root Route]
     Root --> Login[/login\nSign-in Page]
 
     Login --> Dashboard[/dashboard\nAdmin Dashboard]
