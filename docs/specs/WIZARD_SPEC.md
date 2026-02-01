@@ -159,10 +159,13 @@ Collect essential company information to set up the customer account and persona
 ### Metadata
 - **Title:** "Let's set up your company"
 - **Subtitle:** "This helps us customize your experience"
-- **Estimated Time:** 1 minute
+- **Estimated Time:** 1-2 minutes
 - **Required:** Yes (cannot skip)
+- **Total Fields:** 13 (10 required, 3 optional)
 
 ### Form Fields
+
+**Source:** Based on SESSION_SUMMARY_QUICK_START_WIZARD.md (2026-01-31, branch: claude/design-app-ui-layouts-yTgK0)
 
 #### Section: COMPANY DETAILS
 
@@ -175,8 +178,9 @@ Collect essential company information to set up the customer account and persona
   - If duplicate found: Show error "A company with this name already exists. Please use a different name."
 - **Placeholder:** "Enter your company name"
 
-**2. Industry** *
+**2. Industry Sector** *
 - **Type:** Dropdown select
+- **Label:** "Industry Sector"
 - **Options:**
   - Banking & Finance
   - Insurance
@@ -187,17 +191,17 @@ Collect essential company information to set up the customer account and persona
 - **Validation:** Required
 - **Default:** None (user must select)
 
-**3. No. of Lines of Business** *
-- **Type:** Number input
-- **Validation:**
-  - Required
-  - Minimum: 1
-  - Maximum: 100
-  - Integer only
-- **Placeholder:** "e.g., 3"
-- **Helper Text:** "How many different business lines or departments will use this system?"
-
-#### Section: LOCATION
+**3. Primary Region** *
+- **Type:** Dropdown select
+- **Label:** "Primary Region"
+- **Options:** (TBD - to be confirmed with user)
+  - North America
+  - Europe
+  - Asia Pacific
+  - Latin America
+  - Middle East & Africa
+- **Validation:** Required
+- **Default:** None (user must select)
 
 **4. Country** *
 - **Type:** Autocomplete select (searchable dropdown)
@@ -205,37 +209,83 @@ Collect essential company information to set up the customer account and persona
 - **Default:** Pre-selected based on browser locale (e.g., "United States")
 - **Helper Text:** "Type to search countries"
 - **Behavior:** User can type to filter country list
+- **Implementation:** Use CountrySelect.tsx component (react-select)
 
-#### Section: PRIMARY CONTACT
+**5. No. of Lines of Business Being Processed** *
+- **Type:** Number input
+- **Label:** "No. of Lines of Business Being Processed"
+- **Validation:**
+  - Required
+  - Minimum: 1
+  - Maximum: 100
+  - Integer only
+- **Placeholder:** "e.g., 3"
+- **Helper Text:** "How many different business lines or departments will process documents?"
+- **Important:** This value determines the number of sections shown in Step 5 (Volume Expectations)
 
-**5. Contact Name** *
+#### Section: PRIMARY CONTACTS
+
+**6. Primary Contact 1 - Name** *
 - **Type:** Text input
+- **Label:** "Primary Contact 1 - Name"
 - **Validation:** Required, min 2 characters
 - **Placeholder:** "John Doe"
 
-**6. Email Address** *
+**7. Primary Contact 1 - Email** *
 - **Type:** Email input
+- **Label:** "Primary Contact 1 - Email"
 - **Validation:**
   - Required
   - Valid email format (RFC 5322)
 - **Placeholder:** "john.doe@company.com"
 
-**7. Phone Number** *
+**8. Primary Contact 1 - Cell** *
 - **Type:** Tel input
+- **Label:** "Primary Contact 1 - Cell"
 - **Validation:**
   - Required
   - Phone format validation (allow international formats)
 - **Placeholder:** "+1 (555) 123-4567"
 
-#### Section: ADDITIONAL CONTACTS (Optional, Expandable)
+**9. Primary Contact 2 - Name**
+- **Type:** Text input
+- **Label:** "Primary Contact 2 - Name"
+- **Validation:** Optional
+- **Placeholder:** "Jane Smith"
 
-**8. + Add another contact**
-- **Type:** Expandable link
-- **Behavior:**
-  - Clicking expands inline to show Contact 2 fields
-  - Shows same 3 fields: Name, Email, Phone
-  - All Contact 2 fields are optional
-  - Link text changes to "− Remove contact 2" when expanded
+**10. Primary Contact 2 - Email**
+- **Type:** Email input
+- **Label:** "Primary Contact 2 - Email"
+- **Validation:** Optional (but if provided, must be valid email format)
+- **Placeholder:** "jane.smith@company.com"
+
+**11. Primary Contact 2 - Cell**
+- **Type:** Tel input
+- **Label:** "Primary Contact 2 - Cell"
+- **Validation:** Optional (but if provided, must be valid phone format)
+- **Placeholder:** "+1 (555) 987-6543"
+
+#### Section: FILE LOCATIONS
+
+**12. Secured Drop-off Location (Files)** *
+- **Type:** Text input
+- **Label:** "Secured Drop-off Location (Files)"
+- **Validation:**
+  - Required
+  - Can be skipped if not known upfront (user can add later)
+- **Placeholder:** "/data/customers/customer1/drop-off/ or s3://bucket-name/drop-off/"
+- **Helper Text:** "File system path or S3 bucket name where documents will be uploaded"
+- **Format:** File system path (e.g., /data/...) or S3 bucket name (e.g., s3://...)
+
+**13. Secure Pick-up Location (Files)** *
+- **Type:** Text input
+- **Label:** "Secure Pick-up Location (Files)"
+- **Validation:**
+  - Required
+  - Can be skipped if not known upfront (user can add later)
+- **Placeholder:** "/data/customers/customer1/pickup/ or s3://bucket-name/pickup/"
+- **Helper Text:** "File system path or S3 bucket name where processed documents will be delivered"
+- **Format:** File system path (e.g., /data/...) or S3 bucket name (e.g., s3://...)
 
 ### Visual Layout
 
@@ -246,35 +296,57 @@ Collect essential company information to set up the customer account and persona
 │ Company Name *                      │
 │ [input field]                       │
 │                                     │
-│ Industry *                          │
+│ Industry Sector *                   │
 │ [dropdown: Banking & Finance ▼]     │
 │                                     │
-│ No. of Lines of Business *          │
-│ [number input]                      │
-│ How many different business lines...│
-└─────────────────────────────────────┘
-
-┌─────────────────────────────────────┐
-│ LOCATION                            │
+│ Primary Region *                    │
+│ [dropdown: North America ▼]         │
 │                                     │
 │ Country *                           │
 │ [autocomplete: United States ▼]     │
 │ Type to search countries            │
+│                                     │
+│ No. of Lines of Business Being      │
+│ Processed *                         │
+│ [number input: e.g., 3]             │
+│ How many different business lines...│
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
-│ PRIMARY CONTACT                     │
+│ PRIMARY CONTACTS                    │
 │                                     │
-│ Contact Name *                      │
+│ Primary Contact 1 - Name *          │
 │ [input field]                       │
 │                                     │
-│ Email Address *                     │
+│ Primary Contact 1 - Email *         │
 │ [input field]                       │
 │                                     │
-│ Phone Number *                      │
+│ Primary Contact 1 - Cell *          │
 │ [input field]                       │
 │                                     │
-│ + Add another contact               │
+│ Primary Contact 2 - Name            │
+│ [input field]                       │
+│                                     │
+│ Primary Contact 2 - Email           │
+│ [input field]                       │
+│                                     │
+│ Primary Contact 2 - Cell            │
+│ [input field]                       │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ FILE LOCATIONS                      │
+│                                     │
+│ Secured Drop-off Location (Files) * │
+│ [input field]                       │
+│ File system path or S3 bucket name  │
+│ where documents will be uploaded    │
+│                                     │
+│ Secure Pick-up Location (Files) *   │
+│ [input field]                       │
+│ File system path or S3 bucket name  │
+│ where processed documents will be   │
+│ delivered                           │
 └─────────────────────────────────────┘
 ```
 
@@ -282,14 +354,21 @@ Collect essential company information to set up the customer account and persona
 
 #### On Blur (Field-Level)
 - **Company Name:** Check for duplicates via API call
-- **Email Address:** Validate format
-- **Phone Number:** Validate format
+- **Primary Contact 1 - Email:** Validate email format
+- **Primary Contact 1 - Cell:** Validate phone format
+- **Primary Contact 2 - Email:** Validate email format (if provided)
+- **Primary Contact 2 - Cell:** Validate phone format (if provided)
 
 #### On Next Button Click
-- **All required fields:** Must be filled
+- **All 10 required fields:** Must be filled
 - **No validation errors:** All fields must pass validation
 - **Success:** Proceed to Step 2
 - **Failure:** Show inline error messages below each invalid field
+
+#### Skip Logic
+- **Secured Drop-off Location:** Can be skipped if not known upfront
+- **Secure Pick-up Location:** Can be skipped if not known upfront
+- Note: These can be configured later in Settings
 
 ### Error Messages
 
@@ -298,16 +377,21 @@ Collect essential company information to set up the customer account and persona
 | Company Name | Empty | "Company name is required" |
 | Company Name | Duplicate | "A company with this name already exists. Please use a different name." |
 | Company Name | Too short | "Company name must be at least 2 characters" |
-| Industry | Not selected | "Please select an industry" |
+| Industry Sector | Not selected | "Please select an industry sector" |
+| Primary Region | Not selected | "Please select a primary region" |
+| Country | Not selected | "Please select a country" |
 | Lines of Business | Empty | "Please enter the number of lines of business" |
 | Lines of Business | < 1 | "Must be at least 1" |
 | Lines of Business | > 100 | "Maximum 100 lines of business" |
-| Country | Not selected | "Please select a country" |
-| Contact Name | Empty | "Contact name is required" |
-| Email | Empty | "Email address is required" |
-| Email | Invalid format | "Please enter a valid email address" |
-| Phone | Empty | "Phone number is required" |
-| Phone | Invalid format | "Please enter a valid phone number" |
+| Contact 1 Name | Empty | "Primary contact name is required" |
+| Contact 1 Email | Empty | "Primary contact email is required" |
+| Contact 1 Email | Invalid format | "Please enter a valid email address" |
+| Contact 1 Cell | Empty | "Primary contact cell phone is required" |
+| Contact 1 Cell | Invalid format | "Please enter a valid phone number" |
+| Contact 2 Email | Invalid format | "Please enter a valid email address" |
+| Contact 2 Cell | Invalid format | "Please enter a valid phone number" |
+| Drop-off Location | Empty | "Drop-off location is required (or skip to configure later)" |
+| Pick-up Location | Empty | "Pick-up location is required (or skip to configure later)" |
 
 ### Side Panel Content
 
@@ -350,19 +434,22 @@ Your Progress
 ```typescript
 interface Step1Data {
   companyName: string;
-  industry: string;
-  linesOfBusiness: number;
+  industrySector: string;
+  primaryRegion: string;
   country: string;
-  primaryContact: {
+  linesOfBusiness: number;
+  primaryContact1: {
     name: string;
     email: string;
-    phone: string;
+    cell: string;
   };
-  additionalContact?: {
+  primaryContact2?: {
     name: string;
     email: string;
-    phone: string;
+    cell: string;
   };
+  securedDropoffLocation: string;
+  securePickupLocation: string;
 }
 ```
 
@@ -370,6 +457,11 @@ interface Step1Data {
 - **In-session:** React state (lost on refresh)
 - **Save & Exit:** Saved to database as draft
 - **On Next:** Data validated and stored in wizard state
+
+#### Important Notes
+- **linesOfBusiness** value is used to dynamically generate sections in Step 5 (Volume Expectations)
+- **securedDropoffLocation** and **securePickupLocation** can be skipped but should be configured before production use
+- **primaryContact2** fields are optional
 
 ---
 

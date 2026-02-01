@@ -35,19 +35,28 @@
 - **Rationale:** Maintain consistency across app, allow easy wizard exit
 
 ### 3. Step 1 Field List ✅
-**Reduced from 13 fields (original flow diagram) to 7 core fields:**
-1. Company Name *
-2. Industry * (dropdown)
-3. No. of Lines of Business * (number)
-4. Country * (autocomplete)
-5. Contact Name *
-6. Contact Email *
-7. Contact Phone *
+**CORRECTED: All 13 fields from SESSION_SUMMARY_QUICK_START_WIZARD.md now properly documented:**
 
-**Removed:**
-- ❌ Company Size field (redundant with Lines of Business)
-- ❌ Address fields (City, State, Postal Code) - not needed for MVP
-- ❌ Contact 2 by default (made expandable/optional)
+**Company Details Section (5 fields):**
+1. Company Name *
+2. Industry Sector * (dropdown)
+3. Primary Region * (dropdown)
+4. Country * (autocomplete, pre-selected)
+5. No. of Lines of Business Being Processed * (number, 1-100)
+
+**Primary Contacts Section (6 fields):**
+6. Primary Contact 1 - Name *
+7. Primary Contact 1 - Email *
+8. Primary Contact 1 - Cell *
+9. Primary Contact 2 - Name (optional)
+10. Primary Contact 2 - Email (optional)
+11. Primary Contact 2 - Cell (optional)
+
+**File Locations Section (2 fields):**
+12. Secured Drop-off Location (Files) * (can be skipped)
+13. Secure Pick-up Location (Files) * (can be skipped)
+
+**Note:** Originally attempted to reduce to 7 fields, but user corrected with source document showing 13 fields was the approved design.
 
 ### 4. Industry Dropdown Values ✅
 **Finalized list:**
@@ -148,9 +157,22 @@
 **Answer:** Fields were incorrectly inferred from vague documentation:
 - `quick-start-wizard-flow.md:133-137` only said "13 fields including company name, industry, address, contact details"
 - `MVP_REQUIREMENTS.md:246` only mentioned "Company info (name, industry)"
-- No actual field list existed in documentation
+- No actual field list existed in current branch
 
-**Resolution:** User provided correct field list, which is now documented in WIZARD_SPEC.md
+**Resolution:** User located SESSION_SUMMARY_QUICK_START_WIZARD.md from branch `claude/design-app-ui-layouts-yTgK0` (2026-01-31) which had the complete 13-field specification.
+
+**Actual Step 1 fields (from session summary):**
+1. Company Name *
+2. Industry Sector * (dropdown)
+3. Primary Region * (dropdown)
+4. Country * (searchable autocomplete)
+5. No. of Lines of Business Being Processed * (number)
+6-8. Primary Contact 1 (Name, Email, Cell) *
+9-11. Primary Contact 2 (Name, Email, Cell) - optional
+12. Secured Drop-off Location (Files) * - can be skipped
+13. Secure Pick-up Location (Files) * - can be skipped
+
+All fields now properly documented in WIZARD_SPEC.md
 
 ### Q2: Should we have a session MD for every session?
 **Answer:** Yes - adopted Option A (Master Spec + Session Logs)
