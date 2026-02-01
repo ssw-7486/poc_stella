@@ -194,7 +194,7 @@ Collect essential company information to set up the customer account and persona
 **3. Primary Region** *
 - **Type:** Dropdown select
 - **Label:** "Primary Region"
-- **Options:** (TBD - to be confirmed with user)
+- **Options:**
   - North America
   - Europe
   - Asia Pacific
