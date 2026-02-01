@@ -14,15 +14,15 @@ This diagram visualizes the complete application navigation structure, including
 ```mermaid
 flowchart LR
     Start([User Entry]) --> Root[/ Route]
-    Root --> Login[/login<br/>Sign-in Page]
+    Root --> Login[/login\nSign-in Page]
 
-    Login --> Dashboard[/dashboard<br/>Admin Dashboard]
+    Login --> Dashboard[/dashboard\nAdmin Dashboard]
 
-    Dashboard --> Workflows[/workflows<br/>Workflow Editor]
-    Dashboard --> Jobs[/jobs<br/>Jobs List]
-    Dashboard --> Documents[/documents<br/>Documents Upload]
-    Dashboard --> Settings[/settings<br/>Settings]
-    Dashboard --> QuickStart[/quick-start<br/>Quick Start Wizard]
+    Dashboard --> Workflows[/workflows\nWorkflow Editor]
+    Dashboard --> Jobs[/jobs\nJobs List]
+    Dashboard --> Documents[/documents\nDocuments Upload]
+    Dashboard --> Settings[/settings\nSettings]
+    Dashboard --> QuickStart[/quick-start\nQuick Start Wizard]
 
     QuickStart --> |Complete Wizard| Workflows
     QuickStart --> |Save & Exit| Dashboard
