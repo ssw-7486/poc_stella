@@ -247,27 +247,36 @@ Collect essential company information to set up the customer account and persona
   - Phone format validation (allow international formats)
 - **Placeholder:** "+1 (555) 123-4567"
 
-**9. Primary Contact 2 - Name**
+**9. + Add another contact**
+- **Type:** Expandable link
+- **Behavior:** Hidden by default, clicking expands inline to show Contact 2 fields below
+- **Text:** "+ Add another contact" (when collapsed)
+- **Text when expanded:** "− Remove contact 2"
+
+**10. Primary Contact 2 - Name** (shown after clicking "+ Add another contact")
 - **Type:** Text input
 - **Label:** "Primary Contact 2 - Name"
 - **Validation:** Optional
 - **Placeholder:** "Jane Smith"
+- **Display:** Hidden by default, shown when link is clicked
 
-**10. Primary Contact 2 - Email**
+**11. Primary Contact 2 - Email** (shown after clicking "+ Add another contact")
 - **Type:** Email input
 - **Label:** "Primary Contact 2 - Email"
 - **Validation:** Optional (but if provided, must be valid email format)
 - **Placeholder:** "jane.smith@company.com"
+- **Display:** Hidden by default, shown when link is clicked
 
-**11. Primary Contact 2 - Cell**
+**12. Primary Contact 2 - Cell** (shown after clicking "+ Add another contact")
 - **Type:** Tel input
 - **Label:** "Primary Contact 2 - Cell"
 - **Validation:** Optional (but if provided, must be valid phone format)
 - **Placeholder:** "+1 (555) 987-6543"
+- **Display:** Hidden by default, shown when link is clicked
 
 #### Section: FILE LOCATIONS
 
-**12. Secured Drop-off Location (Files)** *
+**13. Secured Drop-off Location (Files)** *
 - **Type:** Text input
 - **Label:** "Secured Drop-off Location (Files)"
 - **Validation:**
@@ -277,7 +286,7 @@ Collect essential company information to set up the customer account and persona
 - **Helper Text:** "File system path or S3 bucket name where documents will be uploaded"
 - **Format:** File system path (e.g., /data/...) or S3 bucket name (e.g., s3://...)
 
-**13. Secure Pick-up Location (Files)** *
+**14. Secure Pick-up Location (Files)** *
 - **Type:** Text input
 - **Label:** "Secure Pick-up Location (Files)"
 - **Validation:**
@@ -324,14 +333,7 @@ Collect essential company information to set up the customer account and persona
 │ Primary Contact 1 - Cell *          │
 │ [input field]                       │
 │                                     │
-│ Primary Contact 2 - Name            │
-│ [input field]                       │
-│                                     │
-│ Primary Contact 2 - Email           │
-│ [input field]                       │
-│                                     │
-│ Primary Contact 2 - Cell            │
-│ [input field]                       │
+│ + Add another contact               │
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
