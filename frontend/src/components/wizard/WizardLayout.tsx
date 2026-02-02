@@ -91,13 +91,13 @@ export function WizardLayout({
             <div className="space-x-3">
               <button
                 onClick={onCancel}
-                className="px-3 py-1.5 text-sm border-2 border-navy-dark text-navy-dark rounded-xl hover:bg-navy-dark hover:text-white transition-colors"
+                className="px-3 py-1.5 text-sm border-2 border-navy-dark text-navy-dark rounded-[5px] hover:bg-navy-dark hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={onSaveAndExit}
-                className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
+                className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-[5px] hover:opacity-90 transition-opacity"
               >
                 Save & Exit
               </button>
@@ -107,7 +107,7 @@ export function WizardLayout({
               {onBack && (
                 <button
                   onClick={onBack}
-                  className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
+                  className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-[5px] hover:opacity-90 transition-opacity"
                 >
                   ← Back
                 </button>
@@ -115,7 +115,7 @@ export function WizardLayout({
               <button
                 onClick={onNext}
                 disabled={nextDisabled}
-                className="px-4 py-1.5 text-sm bg-primary text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 text-sm bg-primary text-white rounded-[5px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {nextLabel}
               </button>

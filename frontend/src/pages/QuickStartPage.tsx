@@ -79,9 +79,27 @@ export function QuickStartPage() {
   // Generate step summaries
   const generateStep1Summary = () => {
     const parts = [];
-    if (step1Data.companyName) parts.push(step1Data.companyName);
-    if (step1Data.industrySector) parts.push(step1Data.industrySector);
-    if (step1Data.country) parts.push(step1Data.country);
+
+    // Company Details
+    if (step1Data.companyName) parts.push(`Company: ${step1Data.companyName}`);
+    if (step1Data.industrySector) parts.push(`Industry: ${step1Data.industrySector}`);
+    if (step1Data.primaryRegion) parts.push(`Region: ${step1Data.primaryRegion}`);
+    if (step1Data.country) parts.push(`Country: ${step1Data.country}`);
+    if (step1Data.linesOfBusiness) parts.push(`Lines of Business: ${step1Data.linesOfBusiness}`);
+
+    // Primary Contacts
+    if (step1Data.primaryContact1.name) parts.push(`Contact 1: ${step1Data.primaryContact1.name}`);
+    if (step1Data.primaryContact1.email) parts.push(`Email: ${step1Data.primaryContact1.email}`);
+    if (step1Data.primaryContact1.cell) parts.push(`Cell: ${step1Data.primaryContact1.cell}`);
+
+    if (step1Data.primaryContact2.name) parts.push(`Contact 2: ${step1Data.primaryContact2.name}`);
+    if (step1Data.primaryContact2.email) parts.push(`Email: ${step1Data.primaryContact2.email}`);
+    if (step1Data.primaryContact2.cell) parts.push(`Cell: ${step1Data.primaryContact2.cell}`);
+
+    // File Locations
+    if (step1Data.securedDropoffLocation) parts.push(`Drop-off: ${step1Data.securedDropoffLocation}`);
+    if (step1Data.securePickupLocation) parts.push(`Pick-up: ${step1Data.securePickupLocation}`);
+
     return parts.join(' • ');
   };
 

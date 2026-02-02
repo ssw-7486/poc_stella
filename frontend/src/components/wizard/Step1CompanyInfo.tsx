@@ -43,13 +43,14 @@ const REGION_OPTIONS = [
   'Middle East & Africa'
 ];
 
-// Simplified country list (top 20 countries)
-const COUNTRIES = [
-  'United States', 'Canada', 'United Kingdom', 'Germany', 'France',
-  'Australia', 'Japan', 'China', 'India', 'Brazil',
-  'Mexico', 'Spain', 'Italy', 'Netherlands', 'Singapore',
-  'South Korea', 'Switzerland', 'Sweden', 'Belgium', 'Austria'
-];
+// Countries grouped by region
+const COUNTRIES_BY_REGION: Record<string, string[]> = {
+  'North America': ['United States', 'Canada', 'Mexico'],
+  'Europe': ['United Kingdom', 'Germany', 'France', 'Spain', 'Italy', 'Netherlands', 'Switzerland', 'Sweden', 'Belgium', 'Austria', 'Poland', 'Ireland'],
+  'Asia Pacific': ['Japan', 'China', 'India', 'Singapore', 'South Korea', 'Australia', 'New Zealand', 'Thailand', 'Malaysia'],
+  'Latin America': ['Brazil', 'Argentina', 'Chile', 'Colombia', 'Peru'],
+  'Middle East & Africa': ['United Arab Emirates', 'Saudi Arabia', 'South Africa', 'Israel', 'Egypt']
+};
 
 const DROPDOWN_ARROW_SVG = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2307464C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`;
 
@@ -62,6 +63,22 @@ const selectStyles = {
 
 export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
   const [showContact2, setShowContact2] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Validation functions
+  const validateEmail = (email: string): string => {
+    if (!email) return '';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) ? '' : 'Please enter a valid email address';
+  };
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return '';
+    const phoneRegex = /^[\d\s()+-]+$/;
+    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10
+      ? ''
+      : 'Please enter a valid phone number';
+  };
 
   const handleChange = (field: string, value: string) => {
     // Handle nested fields
@@ -89,7 +106,35 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
         [field]: value
       });
     }
+
+    // Clear error when user types
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
+
+  const handleBlur = (field: string, value: string) => {
+    let error = '';
+
+    if (field === 'primaryContact1.email') {
+      error = validateEmail(value);
+    } else if (field === 'primaryContact1.cell') {
+      error = validatePhone(value);
+    } else if (field === 'primaryContact2.email' && value) {
+      error = validateEmail(value);
+    } else if (field === 'primaryContact2.cell' && value) {
+      error = validatePhone(value);
+    }
+
+    if (error) {
+      setErrors(prev => ({ ...prev, [field]: error }));
+    }
+  };
+
+  // Get available countries based on selected region
+  const availableCountries = data.primaryRegion
+    ? COUNTRIES_BY_REGION[data.primaryRegion] || []
+    : Object.values(COUNTRIES_BY_REGION).flat();
 
   return (
     <div className="space-y-8">
@@ -114,7 +159,7 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             <select
               value={data.industrySector}
               onChange={(e) => handleChange('industrySector', e.target.value)}
-              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-xl focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
+              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-[5px] focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
               style={selectStyles}
             >
               <option value="">Select industry</option>
@@ -132,8 +177,14 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             </label>
             <select
               value={data.primaryRegion}
-              onChange={(e) => handleChange('primaryRegion', e.target.value)}
-              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-xl focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
+              onChange={(e) => {
+                handleChange('primaryRegion', e.target.value);
+                // Reset country when region changes
+                if (data.country) {
+                  handleChange('country', '');
+                }
+              }}
+              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-[5px] focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
               style={selectStyles}
             >
               <option value="">Select region</option>
@@ -152,17 +203,24 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             <select
               value={data.country}
               onChange={(e) => handleChange('country', e.target.value)}
-              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-xl focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
+              disabled={!data.primaryRegion}
+              className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-[5px] focus:outline-none focus:ring-2 focus:ring-primary appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={selectStyles}
             >
-              <option value="">Select country</option>
-              {COUNTRIES.map((country) => (
+              <option value="">
+                {data.primaryRegion ? 'Select country' : 'Select a region first'}
+              </option>
+              {availableCountries.map((country) => (
                 <option key={country} value={country}>
                   {country}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-dark-grey mt-1">Type to search countries</p>
+            {data.primaryRegion && (
+              <p className="text-xs text-dark-grey mt-1">
+                Showing countries in {data.primaryRegion}
+              </p>
+            )}
           </div>
 
           <div>
@@ -203,6 +261,8 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             type="email"
             value={data.primaryContact1.email}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('primaryContact1.email', e.target.value)}
+            onBlur={() => handleBlur('primaryContact1.email', data.primaryContact1.email)}
+            error={errors['primaryContact1.email']}
             placeholder="john.doe@company.com"
           />
 
@@ -212,6 +272,8 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             type="tel"
             value={data.primaryContact1.cell}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('primaryContact1.cell', e.target.value)}
+            onBlur={() => handleBlur('primaryContact1.cell', data.primaryContact1.cell)}
+            error={errors['primaryContact1.cell']}
             placeholder="+1 (555) 123-4567"
           />
 
@@ -259,6 +321,8 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
                 type="email"
                 value={data.primaryContact2.email}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('primaryContact2.email', e.target.value)}
+                onBlur={() => handleBlur('primaryContact2.email', data.primaryContact2.email)}
+                error={errors['primaryContact2.email']}
                 placeholder="jane.smith@company.com"
               />
 
@@ -267,6 +331,8 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
                 type="tel"
                 value={data.primaryContact2.cell}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('primaryContact2.cell', e.target.value)}
+                onBlur={() => handleBlur('primaryContact2.cell', data.primaryContact2.cell)}
+                error={errors['primaryContact2.cell']}
                 placeholder="+1 (555) 987-6543"
               />
             </div>
