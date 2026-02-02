@@ -5,6 +5,7 @@ interface WizardStep {
   number: number;
   name: string;
   status: 'completed' | 'current' | 'pending';
+  summary?: string;
 }
 
 interface WizardLayoutProps {
@@ -14,6 +15,7 @@ interface WizardLayoutProps {
   stepSubtitle: string;
   children: ReactNode;
   sidePanel?: ReactNode;
+  stepSummaries?: string[]; // Summary text for each completed/current step
   onNext: () => void;
   onBack?: () => void;
   onCancel: () => void;
@@ -38,6 +40,7 @@ export function WizardLayout({
   stepSubtitle,
   children,
   sidePanel,
+  stepSummaries = [],
   onNext,
   onBack,
   onCancel,
@@ -50,7 +53,8 @@ export function WizardLayout({
   const steps: WizardStep[] = STEP_NAMES.map((name, index) => ({
     number: index + 1,
     name,
-    status: index + 1 < currentStep ? 'completed' : index + 1 === currentStep ? 'current' : 'pending'
+    status: index + 1 < currentStep ? 'completed' : index + 1 === currentStep ? 'current' : 'pending',
+    summary: stepSummaries[index] || ''
   }));
 
   return (
@@ -84,26 +88,26 @@ export function WizardLayout({
 
           {/* Footer Actions */}
           <div className="flex items-center justify-between">
-            <div className="space-x-4">
+            <div className="space-x-3">
               <button
                 onClick={onCancel}
-                className="px-4 py-2 border-2 border-navy-dark text-navy-dark rounded-xl hover:bg-navy-dark hover:text-white transition-colors"
+                className="px-3 py-1.5 text-sm border-2 border-navy-dark text-navy-dark rounded-xl hover:bg-navy-dark hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={onSaveAndExit}
-                className="px-4 py-2 bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
+                className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
               >
                 Save & Exit
               </button>
             </div>
 
-            <div className="space-x-4">
+            <div className="space-x-3">
               {onBack && (
                 <button
                   onClick={onBack}
-                  className="px-4 py-2 bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
+                  className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-xl hover:opacity-90 transition-opacity"
                 >
                   ← Back
                 </button>
@@ -111,7 +115,7 @@ export function WizardLayout({
               <button
                 onClick={onNext}
                 disabled={nextDisabled}
-                className="px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 text-sm bg-primary text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {nextLabel}
               </button>
@@ -126,25 +130,36 @@ export function WizardLayout({
             <h3 className="text-sm font-semibold text-navy-darkest mb-4">Your Progress</h3>
             <div className="space-y-3">
               {steps.map((step) => (
-                <div key={step.number} className="flex items-center space-x-3">
-                  {step.status === 'completed' && (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">
-                      ✓
+                <div key={step.number}>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {step.status === 'completed' && (
+                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">
+                          ✓
+                        </div>
+                      )}
+                      {step.status === 'current' && (
+                        <div className="w-6 h-6 rounded-full bg-navy-darkest flex items-center justify-center text-white text-xs font-bold">
+                          ●
+                        </div>
+                      )}
+                      {step.status === 'pending' && (
+                        <div className="w-6 h-6 rounded-full border-2 border-dark-grey flex items-center justify-center text-dark-grey text-xs">
+                          ○
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {step.status === 'current' && (
-                    <div className="w-6 h-6 rounded-full bg-navy-darkest flex items-center justify-center text-white text-xs font-bold">
-                      ●
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm ${step.status === 'current' ? 'font-bold text-navy-darkest' : 'text-navy-dark'}`}>
+                        {step.name}
+                      </div>
+                      {step.summary && (step.status === 'completed' || step.status === 'current') && (
+                        <div className="text-xs text-dark-grey mt-1 break-words">
+                          {step.summary}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {step.status === 'pending' && (
-                    <div className="w-6 h-6 rounded-full border-2 border-dark-grey flex items-center justify-center text-dark-grey text-xs">
-                      ○
-                    </div>
-                  )}
-                  <span className={`text-sm ${step.status === 'current' ? 'font-bold text-navy-darkest' : 'text-navy-dark'}`}>
-                    {step.name}
-                  </span>
+                  </div>
                 </div>
               ))}
             </div>

@@ -76,6 +76,24 @@ export function QuickStartPage() {
     navigate('/dashboard');
   };
 
+  // Generate step summaries
+  const generateStep1Summary = () => {
+    const parts = [];
+    if (step1Data.companyName) parts.push(step1Data.companyName);
+    if (step1Data.industrySector) parts.push(step1Data.industrySector);
+    if (step1Data.country) parts.push(step1Data.country);
+    return parts.join(' • ');
+  };
+
+  const stepSummaries = [
+    generateStep1Summary(), // Step 1
+    '', // Step 2 - not yet implemented
+    '', // Step 3
+    '', // Step 4
+    '', // Step 5
+    ''  // Step 6
+  ];
+
   // Side panel content
   const sidePanel = (
     <div>
@@ -94,6 +112,7 @@ export function QuickStartPage() {
       totalSteps={6}
       stepTitle={currentStep === 1 ? "Let's set up your company" : "Step " + currentStep}
       stepSubtitle={currentStep === 1 ? "This helps us customize your experience" : ""}
+      stepSummaries={stepSummaries}
       onNext={handleNext}
       onBack={currentStep > 1 ? handleBack : undefined}
       onCancel={handleCancel}
