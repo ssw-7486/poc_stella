@@ -14,6 +14,8 @@ export function WorkflowsCard() {
   const [workflows, setWorkflows] = useState<WorkflowData[]>(getAllWorkflows());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [inProgressExpanded, setInProgressExpanded] = useState(true);
+  const [completedExpanded, setCompletedExpanded] = useState(false);
 
   const refreshWorkflows = () => {
     setWorkflows(getAllWorkflows());
@@ -60,30 +62,12 @@ export function WorkflowsCard() {
     });
   };
 
-  if (workflows.length === 0) {
-    return (
-      <Card>
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-navy-darkest mb-2">
-            Workflows
-          </h3>
-          <p className="text-sm text-navy-dark">
-            No workflows yet. Start by clicking "Quick Start" to create your first workflow.
-          </p>
-        </div>
-      </Card>
-    );
-  }
+  // Group workflows by status
+  const inProgressWorkflows = workflows.filter((wf) => wf.status === 'in-progress');
+  const completedWorkflows = workflows.filter((wf) => wf.status === 'completed');
 
-  return (
-    <Card>
-      <div className="p-6">
-        <h3 className="text-lg font-semibold text-navy-darkest mb-4">
-          Workflows ({workflows.length})
-        </h3>
-
-        <div className="space-y-3">
-          {workflows.map((workflow) => (
+  // Render a single workflow card
+  const renderWorkflow = (workflow: WorkflowData) => (
             <div
               key={workflow.id}
               className="border border-input-border rounded-[5px] p-4 hover:border-primary-medium transition-colors"
@@ -206,8 +190,97 @@ export function WorkflowsCard() {
                 </button>
               </div>
             </div>
-          ))}
+  );
+
+  if (workflows.length === 0) {
+    return (
+      <Card>
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-navy-darkest mb-2">
+            Workflows
+          </h3>
+          <p className="text-sm text-navy-dark">
+            No workflows yet. Start by clicking "Quick Start" to create your first workflow.
+          </p>
         </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-navy-darkest mb-4">
+          Workflows ({workflows.length})
+        </h3>
+
+        {/* In Progress Section */}
+        {inProgressWorkflows.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={() => setInProgressExpanded(!inProgressExpanded)}
+              className="flex items-center justify-between w-full text-left mb-3 hover:text-primary transition-colors"
+            >
+              <h4 className="text-md font-semibold text-navy-darkest">
+                In Progress ({inProgressWorkflows.length})
+              </h4>
+              <svg
+                className={`w-5 h-5 text-navy-dark transition-transform ${
+                  inProgressExpanded ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {inProgressExpanded && (
+              <div className="space-y-3">
+                {inProgressWorkflows.map((workflow) => renderWorkflow(workflow))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Completed Section */}
+        {completedWorkflows.length > 0 && (
+          <div>
+            <button
+              onClick={() => setCompletedExpanded(!completedExpanded)}
+              className="flex items-center justify-between w-full text-left mb-3 hover:text-primary transition-colors"
+            >
+              <h4 className="text-md font-semibold text-navy-darkest">
+                Completed ({completedWorkflows.length})
+              </h4>
+              <svg
+                className={`w-5 h-5 text-navy-dark transition-transform ${
+                  completedExpanded ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {completedExpanded && (
+              <div className="space-y-3">
+                {completedWorkflows.map((workflow) => renderWorkflow(workflow))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );
