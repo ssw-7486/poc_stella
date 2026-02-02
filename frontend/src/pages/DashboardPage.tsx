@@ -2,6 +2,7 @@ import { Navigation } from '../components/ui/Navigation';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { WorkflowsCard } from '../components/dashboard/WorkflowsCard';
 
 export function DashboardPage() {
   // Mock data
@@ -91,6 +92,11 @@ export function DashboardPage() {
               ))}
             </div>
           </Card>
+        </section>
+
+        {/* Workflows Section */}
+        <section className="mb-6">
+          <WorkflowsCard />
         </section>
 
         {/* Two-Panel Layout */}

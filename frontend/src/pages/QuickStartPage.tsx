@@ -1,7 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WizardLayout } from '../components/wizard/WizardLayout';
 import { Step1CompanyInfo } from '../components/wizard/Step1CompanyInfo';
+import {
+  createWorkflow,
+  saveWorkflow,
+  getWorkflowById,
+  updateWorkflowStatus,
+  type WorkflowData,
+} from '../utils/workflowStorage';
 
 interface Step1Data {
   companyName: string;
@@ -25,7 +32,9 @@ interface Step1Data {
 
 export function QuickStartPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
+  const [workflowId, setWorkflowId] = useState<string | null>(null);
 
   // Initialize form data with default country
   const [step1Data, setStep1Data] = useState<Step1Data>({
@@ -48,12 +57,47 @@ export function QuickStartPage() {
     securePickupLocation: ''
   });
 
+  // Load existing workflow if resuming
+  useEffect(() => {
+    const resumeId = searchParams.get('workflowId');
+    if (resumeId) {
+      const workflow = getWorkflowById(resumeId);
+      if (workflow) {
+        setWorkflowId(workflow.id);
+        setCurrentStep(workflow.currentStep);
+        setStep1Data(workflow.step1Data);
+      }
+    }
+  }, [searchParams]);
+
   const handleNext = () => {
-    // TODO: Add validation
+    // Save current progress
+    const currentWorkflowId = workflowId || createWorkflow(step1Data).id;
+    if (!workflowId) {
+      setWorkflowId(currentWorkflowId);
+    }
+
+    // Update workflow with current data
+    const workflowData: WorkflowData = {
+      id: currentWorkflowId,
+      name: step1Data.companyName || 'Untitled Workflow',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      currentStep: currentStep + 1,
+      status: 'in-progress',
+      step1Data: {
+        ...step1Data,
+        linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
+      },
+    };
+
     if (currentStep < 6) {
+      saveWorkflow(workflowData);
       setCurrentStep(currentStep + 1);
     } else {
-      // TODO: Complete wizard
+      // Complete wizard
+      workflowData.status = 'completed';
+      saveWorkflow(workflowData);
       navigate('/workflows');
     }
   };
@@ -71,7 +115,23 @@ export function QuickStartPage() {
   };
 
   const handleSaveAndExit = () => {
-    // TODO: Save draft to database
+    // Create or update workflow
+    const currentWorkflowId = workflowId || createWorkflow(step1Data).id;
+
+    const workflowData: WorkflowData = {
+      id: currentWorkflowId,
+      name: step1Data.companyName || 'Untitled Workflow',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      currentStep: currentStep,
+      status: 'in-progress',
+      step1Data: {
+        ...step1Data,
+        linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
+      },
+    };
+
+    saveWorkflow(workflowData);
     alert('Progress saved! You can resume from the Dashboard.');
     navigate('/dashboard');
   };
