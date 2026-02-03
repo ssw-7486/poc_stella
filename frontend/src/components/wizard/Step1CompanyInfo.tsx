@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Input } from '../ui/Input';
 
 interface Step1Data {

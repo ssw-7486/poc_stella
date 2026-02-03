@@ -6,7 +6,6 @@ import {
   createWorkflow,
   saveWorkflow,
   getWorkflowById,
-  updateWorkflowStatus,
   type WorkflowData,
 } from '../utils/workflowStorage';
 
@@ -65,14 +64,21 @@ export function QuickStartPage() {
       if (workflow) {
         setWorkflowId(workflow.id);
         setCurrentStep(workflow.currentStep);
-        setStep1Data(workflow.step1Data);
+        // Convert number to string for form field
+        setStep1Data({
+          ...workflow.step1Data,
+          linesOfBusiness: String(workflow.step1Data.linesOfBusiness || ''),
+        });
       }
     }
   }, [searchParams]);
 
   const handleNext = () => {
     // Save current progress
-    const currentWorkflowId = workflowId || createWorkflow(step1Data).id;
+    const currentWorkflowId = workflowId || createWorkflow({
+      ...step1Data,
+      linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
+    }).id;
     if (!workflowId) {
       setWorkflowId(currentWorkflowId);
     }
@@ -116,7 +122,10 @@ export function QuickStartPage() {
 
   const handleSaveAndExit = () => {
     // Create or update workflow
-    const currentWorkflowId = workflowId || createWorkflow(step1Data).id;
+    const currentWorkflowId = workflowId || createWorkflow({
+      ...step1Data,
+      linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
+    }).id;
 
     const workflowData: WorkflowData = {
       id: currentWorkflowId,
