@@ -72,7 +72,7 @@ export function WorkflowsCard() {
               key={workflow.id}
               className="border border-input-border rounded-[5px] p-4 hover:border-primary-medium transition-colors"
             >
-              {/* Header: Name and Status */}
+              {/* Header: Name and Status with ID */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   {editingId === workflow.id ? (
@@ -114,13 +114,15 @@ export function WorkflowsCard() {
                       </button>
                     </div>
                   )}
-                  <p className="text-xs text-navy-dark mt-1">
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-navy-dark">
                     ID: {workflow.id}
                   </p>
+                  <Badge variant={workflow.status === 'completed' ? 'success' : 'info'}>
+                    {workflow.status === 'completed' ? 'Completed' : 'In Progress'}
+                  </Badge>
                 </div>
-                <Badge variant={workflow.status === 'completed' ? 'success' : 'info'}>
-                  {workflow.status === 'completed' ? 'Completed' : 'In Progress'}
-                </Badge>
               </div>
 
               {/* Details Grid */}
@@ -169,7 +171,7 @@ export function WorkflowsCard() {
                 {workflow.status === 'in-progress' && (
                   <button
                     onClick={() => handleResume(workflow.id)}
-                    className="flex-1 px-3 py-1.5 text-sm bg-primary text-white rounded-[5px] hover:opacity-90 transition-opacity"
+                    className="px-3 py-1.5 text-sm bg-primary text-white rounded-[5px] hover:opacity-90 transition-opacity"
                   >
                     Resume
                   </button>
@@ -177,7 +179,7 @@ export function WorkflowsCard() {
                 {workflow.status === 'completed' && (
                   <button
                     onClick={() => handleResume(workflow.id)}
-                    className="flex-1 px-3 py-1.5 text-sm bg-primary-medium text-white rounded-[5px] hover:opacity-90 transition-opacity"
+                    className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-[5px] hover:opacity-90 transition-opacity"
                   >
                     View
                   </button>
