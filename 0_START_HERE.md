@@ -51,3 +51,37 @@ Before concluding any task, restate:
 - Expected visible effect in the browser
 
 If any step cannot be verified, stop and ask before proceeding.
+
+---
+
+## Instructions to Dev for Terminal
+
+After code changes are pushed, follow these steps to view updates in the browser:
+
+### 1. Confirm Correct Repo
+
+```bash
+pwd
+ls
+```
+
+Verify you are in the correct repository directory before proceeding.
+
+### 2. Git Pull into the Right Branch
+
+```bash
+git pull origin <branch-name>
+```
+
+Replace `<branch-name>` with the active branch (e.g., `claude/review-stella-docs-Cc35Z`).
+
+### 3. Restart Vite
+
+```bash
+cd frontend
+rm -rf node_modules/.vite
+npm install
+npm run dev
+```
+
+This clears Vite's cache, reinstalls dependencies, and starts the dev server fresh.
