@@ -18,6 +18,8 @@ export function DashboardPage() {
     { name: 'customer3', jobs: 142, percent: 11 },
   ];
 
+  const activeCustomers = 3; // Total active customers
+
   const jobs = [
     {
       id: 1247,
@@ -42,10 +44,37 @@ export function DashboardPage() {
     },
   ];
 
-  const recentActivity = [
-    { id: 1247, name: 'Invoice #1247' },
-    { id: 1246, name: 'Receipt #1246' },
-    { id: 1243, name: 'Form #1243' },
+  // Current batch data for last 3 customers
+  const currentBatchByCustomer = [
+    {
+      customer: 'customer1',
+      documents: [
+        { id: 1247, name: 'Invoice #1247', status: 'completed' },
+        { id: 1246, name: 'Receipt #1246', status: 'processing' },
+      ],
+      progress: 24,
+      completed: 12,
+      total: 50,
+    },
+    {
+      customer: 'customer2',
+      documents: [
+        { id: 1245, name: 'Form #1245', status: 'queued' },
+        { id: 1244, name: 'Contract #1244', status: 'processing' },
+      ],
+      progress: 60,
+      completed: 30,
+      total: 50,
+    },
+    {
+      customer: 'customer3',
+      documents: [
+        { id: 1243, name: 'Invoice #1243', status: 'completed' },
+      ],
+      progress: 90,
+      completed: 45,
+      total: 50,
+    },
   ];
 
   return (
@@ -60,78 +89,95 @@ export function DashboardPage() {
           <p className="text-navy/60 mt-1">Here's what's happening with your workflows today</p>
         </header>
 
-        {/* Stats Grid */}
-        <section className="grid grid-cols-4 gap-4 mb-6">
-          {/* Total Jobs */}
-          <Card>
-            <div className="text-navy/60 text-sm font-medium mb-1">Total Jobs</div>
-            <div className="text-3xl font-bold text-navy">{stats.totalJobs}</div>
+        {/* Top Stats Row - 3 Cards */}
+        <section className="grid grid-cols-3 gap-6 mb-6">
+          {/* Card 1: System Health with Active Customers */}
+          <Card title="System Health">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green rounded-full"></span>
+                <span className="text-sm text-navy font-medium">All Systems OK</span>
+              </div>
+              <div className="text-sm text-navy/60">Job Queue: 142 jobs</div>
+              <div className="pt-2 border-t border-navy/10">
+                <div className="text-navy/60 text-xs font-medium mb-1">Active Customers</div>
+                <div className="text-2xl font-bold text-navy">{activeCustomers}</div>
+              </div>
+            </div>
           </Card>
 
-          {/* Accuracy Rate */}
-          <Card>
-            <div className="text-navy/60 text-sm font-medium mb-1">Accuracy Rate</div>
-            <div className="text-3xl font-bold text-green">{stats.successRate}</div>
-          </Card>
-
-          {/* Avg Time */}
-          <Card>
-            <div className="text-navy/60 text-sm font-medium mb-1">Avg Time</div>
-            <div className="text-3xl font-bold text-blue">{stats.avgTime}</div>
-          </Card>
-
-          {/* Per-Customer Breakdown */}
-          <Card>
-            <div className="text-navy/60 text-sm font-medium mb-2">Per-Customer</div>
+          {/* Card 2: Per-Customer Breakdown */}
+          <Card title="Per-Customer">
             <div className="space-y-2">
               {customers.map((customer) => (
-                <div key={customer.name} className="flex items-center justify-between text-xs">
+                <div key={customer.name} className="flex items-center justify-between text-sm">
                   <span className="text-navy font-medium">{customer.name}</span>
                   <span className="text-navy/60">{customer.percent}%</span>
                 </div>
               ))}
             </div>
           </Card>
+
+          {/* Card 3: Combined Stats (Total Jobs, Accuracy Rate, Avg Time) */}
+          <Card title="Processing Stats">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-navy/60 text-xs font-medium">Total Jobs</span>
+                <span className="text-xl font-bold text-navy">{stats.totalJobs}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-navy/60 text-xs font-medium">Accuracy Rate</span>
+                <span className="text-xl font-bold text-green">{stats.successRate}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-navy/60 text-xs font-medium">Avg Time</span>
+                <span className="text-xl font-bold text-blue">{stats.avgTime}</span>
+              </div>
+            </div>
+          </Card>
         </section>
 
-        {/* System Health Row - 3 Cards */}
-        <section className="grid grid-cols-3 gap-6 mb-6">
-          {/* System Health */}
-          <Card title="System Health">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green rounded-full"></span>
-                <span className="text-sm text-navy font-medium">All Systems OK</span>
-              </div>
-              <div className="text-sm text-navy/60">Queue: 142 jobs</div>
-            </div>
-          </Card>
+        {/* Current Batch by Customer - Full Width */}
+        <section className="mb-6">
+          <Card title="Current Batch - Last 3 Customers">
+            <div className="grid grid-cols-3 gap-6">
+              {currentBatchByCustomer.map((batch) => (
+                <div key={batch.customer} className="space-y-3">
+                  {/* Customer Header */}
+                  <div className="pb-2 border-b border-navy/10">
+                    <h3 className="text-sm font-semibold text-navy">{batch.customer}</h3>
+                    <div className="text-xs text-navy/60 mt-1">
+                      Processing: {batch.completed} of {batch.total}
+                    </div>
+                  </div>
 
-          {/* Current Batch */}
-          <Card title="Current Batch">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-navy/60">Processing</span>
-                <span className="font-semibold text-navy">12 of 50</span>
-              </div>
-              {/* Progress Bar */}
-              <div className="w-full h-2 bg-navy/10 rounded-full overflow-hidden">
-                <div className="h-full bg-blue" style={{ width: '24%' }}></div>
-              </div>
-              <div className="text-xs text-navy/60">24% complete</div>
-            </div>
-          </Card>
+                  {/* Progress Bar */}
+                  <div className="space-y-1">
+                    <div className="w-full h-2 bg-navy/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue" style={{ width: `${batch.progress}%` }}></div>
+                    </div>
+                    <div className="text-xs text-navy/60">{batch.progress}% complete</div>
+                  </div>
 
-          {/* Recent Activity */}
-          <Card title="Recent Activity">
-            <ul className="space-y-2">
-              {recentActivity.map((item) => (
-                <li key={item.id} className="flex items-center gap-2 text-sm">
-                  <span className="w-1.5 h-1.5 bg-green rounded-full"></span>
-                  <span className="text-navy">{item.name}</span>
-                </li>
+                  {/* Documents Being Processed */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-navy/60 uppercase">Documents</div>
+                    <ul className="space-y-1.5">
+                      {batch.documents.map((doc) => (
+                        <li key={doc.id} className="flex items-center gap-2 text-xs">
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            doc.status === 'completed' ? 'bg-green' :
+                            doc.status === 'processing' ? 'bg-blue' :
+                            'bg-navy/30'
+                          }`}></span>
+                          <span className="text-navy">{doc.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </Card>
         </section>
 
@@ -183,7 +229,7 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Job List Items - Condensed Single Line */}
+              {/* Job List Items - Condensed Single Line with Fixed Status Width */}
               <div className="space-y-2">
                 {jobs.map((job) => (
                   <div
@@ -197,37 +243,39 @@ export function DashboardPage() {
                       </svg>
                     </button>
 
-                    {/* Job Info - All on One Line */}
+                    {/* Job Info - All on One Line with Fixed Status Width */}
                     <div className="flex items-center gap-3 flex-1 text-sm">
-                      <span className="font-semibold text-navy">Job #{job.id}</span>
+                      <span className="font-semibold text-navy w-20 flex-shrink-0">Job #{job.id}</span>
                       <span className="text-navy/40">|</span>
-                      <Badge
-                        variant={
-                          job.status === 'completed'
-                            ? 'success'
-                            : job.status === 'processing'
-                            ? 'info'
-                            : 'neutral'
-                        }
-                      >
-                        {job.status === 'completed' && '● Completed'}
-                        {job.status === 'processing' && '● Processing'}
-                        {job.status === 'queued' && '○ Queued'}
-                      </Badge>
+                      <div className="w-28 flex-shrink-0">
+                        <Badge
+                          variant={
+                            job.status === 'completed'
+                              ? 'success'
+                              : job.status === 'processing'
+                              ? 'info'
+                              : 'neutral'
+                          }
+                        >
+                          {job.status === 'completed' && '● Completed'}
+                          {job.status === 'processing' && '● Processing'}
+                          {job.status === 'queued' && '○ Queued'}
+                        </Badge>
+                      </div>
                       <span className="text-navy/40">|</span>
-                      <span className="text-navy/60">{job.customer}</span>
+                      <span className="text-navy/60 w-24 flex-shrink-0">{job.customer}</span>
                       <span className="text-navy/40">|</span>
-                      <span className="text-navy/60">{job.type}</span>
+                      <span className="text-navy/60 flex-1">{job.type}</span>
                       <span className="text-navy/40">|</span>
-                      <span className="text-navy/40 text-xs">{job.time}</span>
+                      <span className="text-navy/40 text-xs w-28 flex-shrink-0 text-right">{job.time}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* View All Button */}
+              {/* View All Button - Smaller */}
               <div className="mt-4 text-center">
-                <Button variant="outline">View All Jobs →</Button>
+                <Button variant="outline" className="text-sm px-4 py-1.5">View All Jobs →</Button>
               </div>
             </Card>
         </section>
