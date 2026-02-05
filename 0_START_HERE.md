@@ -4,6 +4,34 @@ All contributors (human or AI) must explicitly verify and restate the active git
 
 ---
 
+# ⚠️ Mandatory Startup Protocol
+
+Any human or AI working in this repository MUST complete the startup protocol below before making changes.
+Skipping this step invalidates subsequent work.
+
+## Claude / AI Startup Protocol (Required)
+
+Before proposing changes, writing code, or offering solutions, the AI must:
+
+1. Explicitly list the files and folders it can see in the current workspace.
+2. Summarize the project’s purpose in no more than 5 bullet points.
+3. Identify the current working area (files likely to be modified in this session).
+4. Ask exactly ONE clarification question if required.
+5. Confirm it will not propose solutions until the above is completed.
+
+If any step is skipped, the session must be reset and the protocol re-run.
+
+## Why This Protocol Exists
+
+This repository is worked on across multiple sessions, tools, and contributors (human and AI).
+This protocol prevents:
+- Context drift
+- Editing the wrong files
+- Repeating solved problems
+- Claude/Cursor operating on false assumptions
+
+---
+
 ## Development Startup Protocol (Read This First)
 
 This project uses multiple active branches and local dev servers.
@@ -51,6 +79,8 @@ Before concluding any task, restate:
 - Expected visible effect in the browser
 
 If any step cannot be verified, stop and ask before proceeding.
+
+At the end of any meaningful session, run `/insights` and record any key decisions in the appropriate documentation.
 
 ---
 
