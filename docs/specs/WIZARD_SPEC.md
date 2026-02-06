@@ -469,10 +469,138 @@ interface Step1Data {
 
 ## Step 2: Template Selection
 
-**Status:** Pending design
-**Purpose:** Choose a pre-built workflow template or start from scratch
+**Status:** In design (Session 2026-02-06)
+**Purpose:** Choose a pre-built workflow template or start from scratch. Selection determines pre-filled defaults for Steps 3-6.
 
-**Placeholder:** To be defined in next session
+### Metadata
+- **Title:** "Choose a template"
+- **Subtitle:** "Select a workflow template to get started quickly, or build your own from scratch"
+- **Estimated Time:** < 1 minute
+- **Required:** Yes (must select one option to proceed)
+- **Skip:** Not allowed (same as Step 1)
+
+### Options (6 total, 3x2 grid)
+
+| Position | Name | ID | Type | Icon |
+|----------|------|----|------|------|
+| 1 | Basic Invoice Processing | `basic-invoice` | Template | Invoice/receipt SVG |
+| 2 | Mixed Document Processing | `mixed-document` | Template | Mixed pages SVG |
+| 3 | Healthcare Form Processing | `healthcare-form` | Template | Medical/health SVG |
+| 4 | Banking | `banking` | Template | Bank/finance SVG |
+| 5 | Insurance | `insurance` | Template | Shield/policy SVG |
+| 6 | Start from Scratch | `start-from-scratch` | Blank | Generic "build" SVG |
+
+### Card Content (Templates 1-5)
+- Template name
+- Short description (placeholder text for now)
+- Document types covered (placeholder text for now)
+- Estimated setup time
+- Sector-representative SVG icon
+
+### Card Content (Start from Scratch — Position 6)
+- Name: "Start from Scratch"
+- Description: "Build a custom workflow from the ground up"
+- Visually distinct: different color from palette, not teal — signals this is not a pre-built template
+- No document types or setup time shown
+
+### Card Behavior
+- **Click** = select (single-click selection)
+- **Selected state** = reversed colors (swap background/foreground)
+- **Only one card selected at a time** (radio behavior)
+- **Deselect** = click a different card
+
+### Layout
+- **3 columns x 2 rows**
+- Card height set for legible content (accessibility — minimum readable font sizes)
+- Consistent card sizing across all 6
+- `rounded-[5px]` border radius (per project conventions)
+
+### Side Panel Content
+
+#### Progress Stepper
+```
+Your Progress
+
+✓ Company Info         ← Completed (checkmark)
+● Choose Template      ← Current step (bold, filled dot)
+○ Document Types
+○ Validation Rules
+○ Volume Estimate
+○ Output Format
+```
+
+#### Template Summary
+- Before selection: "Select a template to see details"
+- After selection: Shows template name and description
+
+### Footer Actions
+- **Cancel:** Confirmation dialog (same as Step 1)
+- **Save & Exit:** Saves progress, returns to Dashboard
+- **Back:** Returns to Step 1 (preserves Step 1 data)
+- **Next →:** Enabled only when a card is selected; proceeds to Step 3
+
+### Validation
+- Must select one option to proceed
+- No other field validation needed
+- Error state: if user clicks Next with no selection, show message above grid
+
+### Pre-fill Behavior (depends on Steps 3-6 design)
+- Selecting a template pre-fills Steps 3-6 with template defaults (editable)
+- Selecting "Start from Scratch" leaves Steps 3-6 blank
+- **Template change warning:** If user returns to Step 2 and changes selection after completing later steps:
+  - Dialog: "Changing your template will reset your settings in the following steps. Continue?"
+  - Options: "Continue" (reset) or "Go Back" (keep current)
+- **Exact pre-fill values TBD** — requires Steps 3-6 field definitions first
+
+### Data Structure
+```typescript
+interface Step2Data {
+  selectedTemplateId: string; // 'basic-invoice' | 'mixed-document' | 'healthcare-form' | 'banking' | 'insurance' | 'start-from-scratch'
+  templateName: string;
+}
+```
+
+### Visual Layout (Approved Outline)
+
+```
+┌─────────────────────────────────────────┐
+│ Step 2 of 6                             │
+│ Progress Bar: ▓▓▓▓░░░░░░ 33%           │
+└─────────────────────────────────────────┘
+
+Choose a template
+Select a workflow template to get started quickly,
+or build your own from scratch
+
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│  [icon]      │ │  [icon]      │ │  [icon]      │
+│  Basic       │ │  Mixed       │ │  Healthcare  │
+│  Invoice     │ │  Document    │ │  Form        │
+│  Processing  │ │  Processing  │ │  Processing  │
+│              │ │              │ │              │
+│  Lorem ipsum │ │  Lorem ipsum │ │  Lorem ipsum │
+│  Doc types:  │ │  Doc types:  │ │  Doc types:  │
+│  lorem ipsum │ │  lorem ipsum │ │  lorem ipsum │
+│  ~3 min      │ │  ~5 min      │ │  ~4 min      │
+└──────────────┘ └──────────────┘ └──────────────┘
+
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│  [icon]      │ │  [icon]      │ │  [icon]      │
+│  Banking     │ │  Insurance   │ │  Start from  │
+│              │ │              │ │  Scratch     │
+│              │ │              │ │  [distinct   │
+│  Lorem ipsum │ │  Lorem ipsum │ │   color]     │
+│  Doc types:  │ │  Doc types:  │ │  Build your  │
+│  lorem ipsum │ │  lorem ipsum │ │  own workflow │
+│  ~4 min      │ │  ~4 min      │ │              │
+└──────────────┘ └──────────────┘ └──────────────┘
+```
+
+### Open Items (Blocked on Steps 3-6)
+- Exact pre-fill mappings per template
+- Preview modal content (deferred — will show workflow visualization once steps are defined)
+- Real descriptions and document types to replace lorem ipsum
+- Icon finalization (simple SVG placeholders for now)
 
 ---
 

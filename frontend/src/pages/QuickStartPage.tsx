@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WizardLayout } from '../components/wizard/WizardLayout';
 import { Step1CompanyInfo } from '../components/wizard/Step1CompanyInfo';
+import { Step2TemplateSelection } from '../components/wizard/Step2TemplateSelection';
 import {
   createWorkflow,
   saveWorkflow,
@@ -27,6 +28,11 @@ interface Step1Data {
   };
   securedDropoffLocation: string;
   securePickupLocation: string;
+}
+
+interface Step2Data {
+  selectedTemplateId: string;
+  templateName: string;
 }
 
 export function QuickStartPage() {
@@ -56,6 +62,11 @@ export function QuickStartPage() {
     securePickupLocation: ''
   });
 
+  const [step2Data, setStep2Data] = useState<Step2Data>({
+    selectedTemplateId: '',
+    templateName: '',
+  });
+
   // Load existing workflow if resuming
   useEffect(() => {
     const resumeId = searchParams.get('workflowId');
@@ -69,12 +80,18 @@ export function QuickStartPage() {
           ...workflow.step1Data,
           linesOfBusiness: String(workflow.step1Data.linesOfBusiness || ''),
         });
+        // Restore step 2 data if it exists
+        if (workflow.step2Data) {
+          setStep2Data({
+            selectedTemplateId: workflow.step2Data.selectedTemplateId || '',
+            templateName: workflow.step2Data.templateName || '',
+          });
+        }
       }
     }
   }, [searchParams]);
 
-  const handleNext = () => {
-    // Save current progress
+  const buildWorkflowData = (stepOverride?: number): WorkflowData => {
     const currentWorkflowId = workflowId || createWorkflow({
       ...step1Data,
       linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
@@ -83,19 +100,23 @@ export function QuickStartPage() {
       setWorkflowId(currentWorkflowId);
     }
 
-    // Update workflow with current data
-    const workflowData: WorkflowData = {
+    return {
       id: currentWorkflowId,
       name: step1Data.companyName || 'Untitled Workflow',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      currentStep: currentStep + 1,
+      currentStep: stepOverride ?? currentStep,
       status: 'in-progress',
       step1Data: {
         ...step1Data,
         linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
       },
+      step2Data: step2Data.selectedTemplateId ? step2Data : undefined,
     };
+  };
+
+  const handleNext = () => {
+    const workflowData = buildWorkflowData(currentStep + 1);
 
     if (currentStep < 6) {
       saveWorkflow(workflowData);
@@ -121,25 +142,7 @@ export function QuickStartPage() {
   };
 
   const handleSaveAndExit = () => {
-    // Create or update workflow
-    const currentWorkflowId = workflowId || createWorkflow({
-      ...step1Data,
-      linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
-    }).id;
-
-    const workflowData: WorkflowData = {
-      id: currentWorkflowId,
-      name: step1Data.companyName || 'Untitled Workflow',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      currentStep: currentStep,
-      status: 'in-progress',
-      step1Data: {
-        ...step1Data,
-        linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
-      },
-    };
-
+    const workflowData = buildWorkflowData();
     saveWorkflow(workflowData);
     alert('Progress saved! You can resume from the Dashboard.');
     navigate('/dashboard');
@@ -172,49 +175,104 @@ export function QuickStartPage() {
     return parts.join(' • ');
   };
 
+  const generateStep2Summary = () => {
+    if (step2Data.templateName) {
+      return `Template: ${step2Data.templateName}`;
+    }
+    return '';
+  };
+
   const stepSummaries = [
     generateStep1Summary(), // Step 1
-    '', // Step 2 - not yet implemented
+    generateStep2Summary(), // Step 2
     '', // Step 3
     '', // Step 4
     '', // Step 5
     ''  // Step 6
   ];
 
-  // Side panel content
-  const sidePanel = (
-    <div>
-      <h3 className="text-sm font-semibold text-navy-darkest mb-2">Need Help?</h3>
-      <ul className="text-xs text-navy-dark space-y-2">
-        <li>• Required fields are marked with an asterisk (*)</li>
-        <li>• You can edit this information later in Settings</li>
-        <li>• Contact support if you need assistance</li>
-      </ul>
-    </div>
-  );
+  // Step-specific titles and subtitles
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1: return "Let's set up your company";
+      case 2: return "Choose a template";
+      default: return `Step ${currentStep}`;
+    }
+  };
+
+  const getStepSubtitle = () => {
+    switch (currentStep) {
+      case 1: return "This helps us customize your experience";
+      case 2: return "Select a workflow template to get started quickly, or build your own from scratch";
+      default: return "";
+    }
+  };
+
+  // Step-specific side panel content
+  const getSidePanel = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-navy-darkest mb-2">Need Help?</h3>
+            <ul className="text-xs text-navy-dark space-y-2">
+              <li>• Required fields are marked with an asterisk (*)</li>
+              <li>• You can edit this information later in Settings</li>
+              <li>• Contact support if you need assistance</li>
+            </ul>
+          </div>
+        );
+      case 2:
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-navy-darkest mb-2">Template Summary</h3>
+            {step2Data.templateName ? (
+              <div className="text-xs text-navy-dark space-y-2">
+                <p><span className="font-medium">Selected:</span> {step2Data.templateName}</p>
+                {step2Data.selectedTemplateId !== 'start-from-scratch' && (
+                  <p>This template will pre-fill your document types, validation rules, and output settings in the following steps.</p>
+                )}
+                {step2Data.selectedTemplateId === 'start-from-scratch' && (
+                  <p>You will configure all settings manually in the following steps.</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-dark-grey">Select a template to see details</p>
+            )}
+          </div>
+        );
+      default:
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-navy-darkest mb-2">Need Help?</h3>
+            <ul className="text-xs text-navy-dark space-y-2">
+              <li>• Contact support if you need assistance</li>
+            </ul>
+          </div>
+        );
+    }
+  };
 
   return (
     <WizardLayout
       currentStep={currentStep}
       totalSteps={6}
-      stepTitle={currentStep === 1 ? "Let's set up your company" : "Step " + currentStep}
-      stepSubtitle={currentStep === 1 ? "This helps us customize your experience" : ""}
+      stepTitle={getStepTitle()}
+      stepSubtitle={getStepSubtitle()}
       stepSummaries={stepSummaries}
       onNext={handleNext}
       onBack={currentStep > 1 ? handleBack : undefined}
       onCancel={handleCancel}
       onSaveAndExit={handleSaveAndExit}
-      sidePanel={sidePanel}
+      sidePanel={getSidePanel()}
       nextLabel={currentStep === 6 ? 'Finish Setup' : 'Next →'}
+      nextDisabled={currentStep === 2 && !step2Data.selectedTemplateId}
     >
       {currentStep === 1 && (
         <Step1CompanyInfo data={step1Data} onChange={setStep1Data} />
       )}
       {currentStep === 2 && (
-        <div className="text-center py-12 text-navy-dark">
-          <p>Step 2: Template Selection</p>
-          <p className="text-sm">Coming soon...</p>
-        </div>
+        <Step2TemplateSelection data={step2Data} onChange={setStep2Data} />
       )}
       {currentStep === 3 && (
         <div className="text-center py-12 text-navy-dark">
