@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 interface Step2Data {
   selectedTemplateId: string;
   templateName: string;
@@ -128,9 +126,6 @@ const TEMPLATES: TemplateOption[] = [
 ];
 
 export function Step2TemplateSelection({ data, onChange }: Step2TemplateSelectionProps) {
-  // Layout toggle: 'A' = centered icon-top cards, 'B' = compact icon-left cards
-  const [layout, setLayout] = useState<'A' | 'B'>('A');
-
   const handleSelect = (template: TemplateOption) => {
     onChange({
       selectedTemplateId: template.id,
@@ -138,187 +133,78 @@ export function Step2TemplateSelection({ data, onChange }: Step2TemplateSelectio
     });
   };
 
-  const isSelected = (id: string) => data.selectedTemplateId === id;
-
   return (
     <div>
-      {/* Layout toggle for review */}
-      <div className="flex items-center gap-3 mb-6 p-3 bg-primary-lightest rounded-[5px]">
-        <span className="text-xs font-semibold text-navy-darkest uppercase">Layout Preview:</span>
-        <button
-          onClick={() => setLayout('A')}
-          className={`px-3 py-1 text-xs rounded-[5px] transition-colors ${
-            layout === 'A'
-              ? 'bg-navy-darkest text-white'
-              : 'bg-white text-navy-dark border border-navy-dark'
-          }`}
-        >
-          Option A: Icon Top
-        </button>
-        <button
-          onClick={() => setLayout('B')}
-          className={`px-3 py-1 text-xs rounded-[5px] transition-colors ${
-            layout === 'B'
-              ? 'bg-navy-darkest text-white'
-              : 'bg-white text-navy-dark border border-navy-dark'
-          }`}
-        >
-          Option B: Icon Left
-        </button>
-      </div>
-
-      {/* Template Grid */}
+      {/* Template Grid - 3x2 */}
       <div className="grid grid-cols-3 gap-4">
-        {TEMPLATES.map((template) => (
-          <div key={template.id}>
-            {layout === 'A'
-              ? renderCardA(template, isSelected(template.id), () => handleSelect(template))
-              : renderCardB(template, isSelected(template.id), () => handleSelect(template))
-            }
-          </div>
-        ))}
+        {TEMPLATES.map((template) => {
+          const selected = data.selectedTemplateId === template.id;
+          const isBlank = template.isBlank;
+
+          // Normal state
+          const normalBg = isBlank ? 'bg-gray-lightest' : 'bg-white';
+          const normalBorder = isBlank ? 'border-dark-grey border-dashed' : 'border-light-grey';
+          const normalText = isBlank ? 'text-dark-grey' : 'text-navy-darkest';
+          const normalDesc = isBlank ? 'text-dark-grey' : 'text-navy-dark';
+          const normalIcon = isBlank ? 'text-dark-grey' : 'text-primary';
+
+          // Selected state: reversed colors
+          const selectedBg = isBlank ? 'bg-navy-dark' : 'bg-navy-darkest';
+          const selectedBorder = isBlank ? 'border-navy-dark' : 'border-navy-darkest';
+          const selectedText = 'text-white';
+          const selectedDesc = 'text-primary-lighter';
+          const selectedIcon = 'text-primary-light';
+
+          const bg = selected ? selectedBg : normalBg;
+          const border = selected ? selectedBorder : normalBorder;
+          const text = selected ? selectedText : normalText;
+          const desc = selected ? selectedDesc : normalDesc;
+          const icon = selected ? selectedIcon : normalIcon;
+
+          return (
+            <button
+              key={template.id}
+              type="button"
+              onClick={() => handleSelect(template)}
+              className={`w-full text-left p-4 rounded-[5px] border-2 ${bg} ${border} transition-all duration-200 hover:shadow-md cursor-pointer min-h-[200px] flex flex-col`}
+            >
+              {/* Top row: icon + name */}
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`${icon} flex-shrink-0`}>
+                  {template.icon}
+                </div>
+                <h3 className={`text-sm font-semibold ${text} leading-tight pt-1`}>
+                  {template.name}
+                </h3>
+              </div>
+
+              {/* Description */}
+              <p className={`text-xs ${desc} leading-relaxed mb-3 flex-1`}>
+                {template.description}
+              </p>
+
+              {/* Footer: doc types and setup time */}
+              {!isBlank && (
+                <div className={`text-xs ${desc} border-t ${selected ? 'border-navy-dark' : 'border-light-grey'} pt-2 mt-auto`}>
+                  <p className="mb-1">
+                    <span className={`font-medium ${text}`}>Docs:</span> {template.documentTypes}
+                  </p>
+                  <p>
+                    <span className={`font-medium ${text}`}>Setup:</span> {template.setupTime}
+                  </p>
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Validation message */}
+      {/* Validation hint */}
       {!data.selectedTemplateId && (
         <p className="text-xs text-dark-grey mt-4 text-center">
           Select a template to continue
         </p>
       )}
     </div>
-  );
-}
-
-/**
- * Option A: Icon centered at top, content below
- * Gallery-style cards with visual emphasis on the icon
- */
-function renderCardA(
-  template: TemplateOption,
-  selected: boolean,
-  onSelect: () => void
-) {
-  const isBlank = template.isBlank;
-
-  // Normal state colors
-  const normalBg = isBlank ? 'bg-gray-lightest' : 'bg-white';
-  const normalBorder = isBlank ? 'border-dark-grey' : 'border-light-grey';
-  const normalText = 'text-navy-darkest';
-  const normalDesc = isBlank ? 'text-dark-grey' : 'text-navy-dark';
-  const normalIcon = isBlank ? 'text-dark-grey' : 'text-primary';
-
-  // Selected state: reversed colors
-  const selectedBg = isBlank ? 'bg-navy-dark' : 'bg-navy-darkest';
-  const selectedBorder = isBlank ? 'border-navy-dark' : 'border-navy-darkest';
-  const selectedText = 'text-white';
-  const selectedDesc = 'text-primary-lighter';
-  const selectedIcon = 'text-primary-light';
-
-  const bg = selected ? selectedBg : normalBg;
-  const border = selected ? selectedBorder : normalBorder;
-  const text = selected ? selectedText : normalText;
-  const desc = selected ? selectedDesc : normalDesc;
-  const icon = selected ? selectedIcon : normalIcon;
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`w-full text-left p-5 rounded-[5px] border-2 ${bg} ${border} transition-all duration-200 hover:shadow-md cursor-pointer min-h-[220px] flex flex-col`}
-    >
-      {/* Icon */}
-      <div className={`${icon} mb-4 flex justify-center`}>
-        {template.icon}
-      </div>
-
-      {/* Name */}
-      <h3 className={`text-sm font-semibold ${text} mb-2 text-center`}>
-        {template.name}
-      </h3>
-
-      {/* Description */}
-      <p className={`text-xs ${desc} mb-3 text-center flex-1`}>
-        {template.description}
-      </p>
-
-      {/* Footer: doc types and setup time */}
-      {!isBlank && (
-        <div className={`text-xs ${desc} border-t ${selected ? 'border-navy-dark' : 'border-light-grey'} pt-2 mt-auto`}>
-          <p className="mb-1">
-            <span className={`font-medium ${text}`}>Docs:</span> {template.documentTypes}
-          </p>
-          <p>
-            <span className={`font-medium ${text}`}>Setup:</span> {template.setupTime}
-          </p>
-        </div>
-      )}
-    </button>
-  );
-}
-
-/**
- * Option B: Icon on left, content stacked on right
- * Compact, scannable layout with horizontal card structure
- */
-function renderCardB(
-  template: TemplateOption,
-  selected: boolean,
-  onSelect: () => void
-) {
-  const isBlank = template.isBlank;
-
-  // Normal state colors
-  const normalBg = isBlank ? 'bg-gray-lightest' : 'bg-white';
-  const normalBorder = isBlank ? 'border-dark-grey' : 'border-light-grey';
-  const normalText = 'text-navy-darkest';
-  const normalDesc = isBlank ? 'text-dark-grey' : 'text-navy-dark';
-  const normalIcon = isBlank ? 'text-dark-grey' : 'text-primary';
-
-  // Selected state: reversed colors
-  const selectedBg = isBlank ? 'bg-navy-dark' : 'bg-navy-darkest';
-  const selectedBorder = isBlank ? 'border-navy-dark' : 'border-navy-darkest';
-  const selectedText = 'text-white';
-  const selectedDesc = 'text-primary-lighter';
-  const selectedIcon = 'text-primary-light';
-
-  const bg = selected ? selectedBg : normalBg;
-  const border = selected ? selectedBorder : normalBorder;
-  const text = selected ? selectedText : normalText;
-  const desc = selected ? selectedDesc : normalDesc;
-  const icon = selected ? selectedIcon : normalIcon;
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`w-full text-left p-4 rounded-[5px] border-2 ${bg} ${border} transition-all duration-200 hover:shadow-md cursor-pointer min-h-[220px] flex flex-col`}
-    >
-      {/* Top row: icon + name */}
-      <div className="flex items-start gap-3 mb-2">
-        <div className={`${icon} flex-shrink-0`}>
-          {template.icon}
-        </div>
-        <h3 className={`text-sm font-semibold ${text} leading-tight`}>
-          {template.name}
-        </h3>
-      </div>
-
-      {/* Description */}
-      <p className={`text-xs ${desc} mb-3 flex-1`}>
-        {template.description}
-      </p>
-
-      {/* Footer: doc types and setup time */}
-      {!isBlank && (
-        <div className={`text-xs ${desc} border-t ${selected ? 'border-navy-dark' : 'border-light-grey'} pt-2 mt-auto`}>
-          <p className="mb-1">
-            <span className={`font-medium ${text}`}>Docs:</span> {template.documentTypes}
-          </p>
-          <p>
-            <span className={`font-medium ${text}`}>Setup:</span> {template.setupTime}
-          </p>
-        </div>
-      )}
-    </button>
   );
 }
