@@ -115,3 +115,78 @@ npm run dev
 ```
 
 This clears Vite's cache, reinstalls dependencies, and starts the dev server fresh.
+
+---
+
+## Claude Server Startup Instructions (Non-Negotiable)
+
+**Context:**
+- Repo name: `poc_stella`
+- The real frontend lives in `poc_stella/frontend`
+- Never run `npm install` or `npm run dev` at repo root
+
+### Required Startup Sequence
+
+Every time the dev server needs to start, follow this **exact** sequence. No shortcuts.
+
+```bash
+# 1. Confirm location
+pwd
+ls
+# You must see a frontend/ folder before continuing.
+
+# 2. Enter the frontend
+cd frontend
+pwd
+# You must now be inside poc_stella/frontend.
+
+# 3. Ensure a clean port
+lsof -ti tcp:5173 | xargs -r kill -9
+
+# 4. Install dependencies (frontend only)
+npm install
+
+# 5. Start the dev server
+npm run dev
+```
+
+### Mandatory Verification (Do Not Skip)
+
+In a new terminal tab or after the server starts:
+
+```bash
+curl -I http://localhost:5173/login
+```
+
+- If this returns an HTTP response, the server is running.
+- If not, the startup **failed**, regardless of terminal messages.
+
+### Hard Rules
+
+- **Never** run `npm install` at repo root
+- **Never** run `npm run dev` at repo root
+- **Never** assume the server is running without `curl -I` verification
+- **Always** show `pwd` before and after `cd frontend`
+
+### Failure Handling
+
+If any step fails:
+1. **Stop immediately**
+2. Paste the exact command, working directory, and full terminal output
+3. **Do not guess or retry blindly**
+
+---
+
+## Lessons Learned (Session 2026-02-06)
+
+### Server Startup Protocol Violation
+
+**What happened:** Claude skipped the startup protocol — did not confirm `pwd`/`ls` before starting, did not show `pwd` after `cd frontend`, did not kill existing processes on port 5173, and did not use the prescribed `curl -I` verification. Instead, used a shortcut curl command and assumed success.
+
+**Impact:** Wasted the user's time reviewing and correcting the process.
+
+**Root cause:** Treated the startup as a routine task and took shortcuts instead of following the documented protocol step by step.
+
+**Fix:** The "Claude Server Startup Instructions" section above is now mandatory. Every server start must follow the exact sequence with no deviations. This has also been recorded in Claude's persistent memory so it carries across sessions.
+
+**Rule for future developers (human or AI):** If you cannot show `curl -I http://localhost:5173/login` returning HTTP 200, the server is not running. Period.
