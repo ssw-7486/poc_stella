@@ -29,8 +29,10 @@ export interface WorkflowData {
     securedDropoffLocation: string;
     securePickupLocation: string;
   };
-  // Future steps will be added here
-  step2Data?: Record<string, unknown>;
+  step2Data?: {
+    selectedTemplateId: string;
+    templateName: string;
+  };
   step3Data?: Record<string, unknown>;
   step4Data?: Record<string, unknown>;
   step5Data?: Record<string, unknown>;
