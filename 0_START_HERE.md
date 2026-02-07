@@ -97,13 +97,29 @@ ls
 
 Verify you are in the correct repository directory before proceeding.
 
-### 2. Git Pull into the Right Branch
+### 2. Fetch and Switch to the Correct Branch
+
+If a new session created a **new branch**, your local machine won't see it until you fetch:
+
+```bash
+# Fetch the remote branch first
+git fetch origin <branch-name>
+
+# Create a local tracking branch and switch to it
+git switch -c <branch-name> origin/<branch-name>
+
+# Confirm you're on the right branch
+git branch --show-current
+git log --oneline -5
+```
+
+If the branch **already exists locally**, just pull:
 
 ```bash
 git pull origin <branch-name>
 ```
 
-Replace `<branch-name>` with the active branch (e.g., `claude/review-stella-docs-Cc35Z`).
+Replace `<branch-name>` with the active branch (e.g., `claude/review-poc-stella-fS8bt`).
 
 ### 3. Restart Vite
 
@@ -190,3 +206,13 @@ If any step fails:
 **Fix:** The "Claude Server Startup Instructions" section above is now mandatory. Every server start must follow the exact sequence with no deviations. This has also been recorded in Claude's persistent memory so it carries across sessions.
 
 **Rule for future developers (human or AI):** If you cannot show `curl -I http://localhost:5173/login` returning HTTP 200, the server is not running. Period.
+
+### New Branch Not Visible Locally
+
+**What happened:** Claude pushed commits to a new branch (`claude/review-poc-stella-fS8bt`), but the user couldn't see it in `git log --all` on their local machine.
+
+**Root cause:** Each Claude Code session may create a new branch. The local machine doesn't know about new remote branches until `git fetch` is run.
+
+**Fix:** Updated "Instructions to Dev for Terminal" above to include `git fetch` + `git switch -c` steps for new branches, not just `git pull` for existing ones.
+
+**Rule for future developers:** When a new session starts on a new branch, always tell the user to `git fetch origin <branch-name>` before they can see or switch to it locally.
