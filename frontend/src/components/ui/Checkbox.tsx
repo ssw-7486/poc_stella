@@ -1,11 +1,11 @@
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, memo, type InputHTMLAttributes } from 'react';
 
 interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   description?: string;
 }
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+export const Checkbox = memo(forwardRef<HTMLInputElement, CheckboxProps>(
   ({ label, description, className = '', ...props }, ref) => {
     return (
       <div className="flex items-start">
@@ -46,6 +46,6 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       </div>
     );
   }
-);
+));
 
 Checkbox.displayName = 'Checkbox';

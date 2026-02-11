@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { Input } from '../ui/Input';
 import { Select, type SelectOption } from '../ui/Select';
 import { Button } from '../ui/Button';
@@ -31,7 +31,7 @@ const PEAK_PERIOD_OPTIONS: SelectOption[] = [
   { value: 'other', label: 'Other' }
 ];
 
-export function Step5VolumeEstimate({ data, onChange, step1LobCount }: Step5VolumeEstimateProps) {
+export const Step5VolumeEstimate = memo(function Step5VolumeEstimate({ data, onChange, step1LobCount }: Step5VolumeEstimateProps) {
   // Initialize volumes array based on Step 1 LOB count
   useEffect(() => {
     if (!data.skipVolumeEstimate && data.volumes.length !== step1LobCount) {
@@ -192,4 +192,4 @@ export function Step5VolumeEstimate({ data, onChange, step1LobCount }: Step5Volu
       </div>
     </div>
   );
-}
+});

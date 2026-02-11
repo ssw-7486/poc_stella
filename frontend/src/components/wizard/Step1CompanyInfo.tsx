@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, memo, type ChangeEvent } from 'react';
 import { Input } from '../ui/Input';
 
 interface Step1Data {
@@ -61,7 +61,7 @@ const selectStyles = {
   backgroundSize: '1.25em 1.25em',
 };
 
-export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
+export const Step1CompanyInfo = memo(function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
   const [showContact2, setShowContact2] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -178,11 +178,12 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
             <select
               value={data.primaryRegion}
               onChange={(e) => {
-                handleChange('primaryRegion', e.target.value);
-                // Reset country when region changes
-                if (data.country) {
-                  handleChange('country', '');
-                }
+                // Update region and reset country in a single onChange call to avoid race condition
+                onChange({
+                  ...data,
+                  primaryRegion: e.target.value,
+                  country: '' // Reset country when region changes
+                });
               }}
               className="w-full px-4 py-2 bg-primary-lighter border border-navy-dark rounded-[5px] focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
               style={selectStyles}
@@ -375,4 +376,4 @@ export function Step1CompanyInfo({ data, onChange }: Step1CompanyInfoProps) {
       </div>
     </div>
   );
-}
+});

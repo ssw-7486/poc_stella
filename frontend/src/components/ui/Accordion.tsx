@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, memo, type ReactNode } from 'react';
 
 export interface AccordionItem {
   id: string;
@@ -12,7 +12,7 @@ interface AccordionProps {
   allowMultiple?: boolean;
 }
 
-export function Accordion({ items, allowMultiple = false }: AccordionProps) {
+export const Accordion = memo(function Accordion({ items, allowMultiple = false }: AccordionProps) {
   const [openItems, setOpenItems] = useState<Set<string>>(() => {
     const initialOpen = new Set<string>();
     items.forEach((item) => {
@@ -83,4 +83,4 @@ export function Accordion({ items, allowMultiple = false }: AccordionProps) {
       })}
     </div>
   );
-}
+});

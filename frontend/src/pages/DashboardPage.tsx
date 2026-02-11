@@ -4,78 +4,79 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { WorkflowsCard } from '../components/dashboard/WorkflowsCard';
 
+// Mock data - hoisted outside component to prevent recreation on every render
+const DASHBOARD_STATS = {
+  totalJobs: '1,247',
+  successRate: '98.5%',
+  avgTime: '2.3s',
+};
+
+const MOCK_CUSTOMERS = [
+  { name: 'customer1', jobs: 847, percent: 68 },
+  { name: 'customer2', jobs: 258, percent: 21 },
+  { name: 'customer3', jobs: 142, percent: 11 },
+];
+
+const ACTIVE_CUSTOMERS = 3; // Total active customers
+
+const MOCK_JOBS = [
+  {
+    id: 1247,
+    status: 'completed',
+    customer: 'customer1',
+    type: 'Invoice OCR',
+    time: '2 minutes ago',
+  },
+  {
+    id: 1246,
+    status: 'processing',
+    customer: 'customer1',
+    type: 'Receipt Extract',
+    time: '5 minutes ago',
+  },
+  {
+    id: 1245,
+    status: 'queued',
+    customer: 'customer2',
+    type: 'Form Validation',
+    time: '10 minutes ago',
+  },
+];
+
+// Current batch data for last 3 customers
+const CURRENT_BATCH_BY_CUSTOMER = [
+  {
+    customer: 'customer1',
+    documents: [
+      { id: 1247, name: 'Invoice #1247', status: 'completed' },
+      { id: 1246, name: 'Receipt #1246', status: 'processing' },
+    ],
+    progress: 24,
+    completed: 12,
+    total: 50,
+  },
+  {
+    customer: 'customer2',
+    documents: [
+      { id: 1245, name: 'Form #1245', status: 'queued' },
+      { id: 1244, name: 'Contract #1244', status: 'processing' },
+    ],
+    progress: 60,
+    completed: 30,
+    total: 50,
+  },
+  {
+    customer: 'customer3',
+    documents: [
+      { id: 1243, name: 'Invoice #1243', status: 'completed' },
+    ],
+    progress: 90,
+    completed: 45,
+    total: 50,
+  },
+];
+
 export function DashboardPage() {
-  // Mock data
-  const stats = {
-    totalJobs: '1,247',
-    successRate: '98.5%',
-    avgTime: '2.3s',
-  };
-
-  const customers = [
-    { name: 'customer1', jobs: 847, percent: 68 },
-    { name: 'customer2', jobs: 258, percent: 21 },
-    { name: 'customer3', jobs: 142, percent: 11 },
-  ];
-
-  const activeCustomers = 3; // Total active customers
-
-  const jobs = [
-    {
-      id: 1247,
-      status: 'completed',
-      customer: 'customer1',
-      type: 'Invoice OCR',
-      time: '2 minutes ago',
-    },
-    {
-      id: 1246,
-      status: 'processing',
-      customer: 'customer1',
-      type: 'Receipt Extract',
-      time: '5 minutes ago',
-    },
-    {
-      id: 1245,
-      status: 'queued',
-      customer: 'customer2',
-      type: 'Form Validation',
-      time: '10 minutes ago',
-    },
-  ];
-
-  // Current batch data for last 3 customers
-  const currentBatchByCustomer = [
-    {
-      customer: 'customer1',
-      documents: [
-        { id: 1247, name: 'Invoice #1247', status: 'completed' },
-        { id: 1246, name: 'Receipt #1246', status: 'processing' },
-      ],
-      progress: 24,
-      completed: 12,
-      total: 50,
-    },
-    {
-      customer: 'customer2',
-      documents: [
-        { id: 1245, name: 'Form #1245', status: 'queued' },
-        { id: 1244, name: 'Contract #1244', status: 'processing' },
-      ],
-      progress: 60,
-      completed: 30,
-      total: 50,
-    },
-    {
-      customer: 'customer3',
-      documents: [
-        { id: 1243, name: 'Invoice #1243', status: 'completed' },
-      ],
-      progress: 90,
-      completed: 45,
-      total: 50,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-card-bg">
@@ -101,7 +102,7 @@ export function DashboardPage() {
               <div className="text-sm text-navy/60">Job Queue: 142 jobs</div>
               <div className="pt-2 border-t border-navy/10">
                 <div className="text-navy/60 text-xs font-medium mb-1">Active Customers</div>
-                <div className="text-2xl font-bold text-navy">{activeCustomers}</div>
+                <div className="text-2xl font-bold text-navy">{ACTIVE_CUSTOMERS}</div>
               </div>
             </div>
           </Card>
@@ -109,7 +110,7 @@ export function DashboardPage() {
           {/* Card 2: Per-Customer Breakdown */}
           <Card title="Per-Customer">
             <div className="space-y-2">
-              {customers.map((customer) => (
+              {MOCK_CUSTOMERS.map((customer) => (
                 <div key={customer.name} className="flex items-center justify-between text-sm">
                   <span className="text-navy font-medium">{customer.name}</span>
                   <span className="text-navy/60">{customer.percent}%</span>
@@ -123,15 +124,15 @@ export function DashboardPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-navy/60 text-xs font-medium">Total Jobs</span>
-                <span className="text-xl font-bold text-navy">{stats.totalJobs}</span>
+                <span className="text-xl font-bold text-navy">{DASHBOARD_STATS.totalJobs}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-navy/60 text-xs font-medium">Accuracy Rate</span>
-                <span className="text-xl font-bold text-green">{stats.successRate}</span>
+                <span className="text-xl font-bold text-green">{DASHBOARD_STATS.successRate}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-navy/60 text-xs font-medium">Avg Time</span>
-                <span className="text-xl font-bold text-blue">{stats.avgTime}</span>
+                <span className="text-xl font-bold text-blue">{DASHBOARD_STATS.avgTime}</span>
               </div>
             </div>
           </Card>
@@ -141,7 +142,7 @@ export function DashboardPage() {
         <section className="mb-6">
           <Card title="Current Batch - Last 3 Customers">
             <div className="grid grid-cols-3 gap-6">
-              {currentBatchByCustomer.map((batch) => (
+              {CURRENT_BATCH_BY_CUSTOMER.map((batch) => (
                 <div key={batch.customer} className="space-y-3">
                   {/* Customer Header */}
                   <div className="pb-2 border-b border-navy/10">
@@ -231,7 +232,7 @@ export function DashboardPage() {
 
               {/* Job List Items - Condensed Single Line with Fixed Status Width */}
               <div className="space-y-2">
-                {jobs.map((job) => (
+                {MOCK_JOBS.map((job) => (
                   <div
                     key={job.id}
                     className="flex items-center gap-3 px-4 py-2 border border-navy/10 rounded-md hover:border-blue/30 hover:bg-blue/5 transition-all cursor-pointer"

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ChangeEvent } from 'react';
 
 interface SliderMark {
@@ -18,7 +19,7 @@ interface SliderProps {
   id?: string;
 }
 
-export function Slider({
+export const Slider = memo(function Slider({
   min,
   max,
   value,
@@ -119,4 +120,4 @@ export function Slider({
       )}
     </div>
   );
-}
+});

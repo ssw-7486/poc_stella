@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Checkbox } from './Checkbox';
 
 interface PolicyCardProps {
@@ -8,7 +9,7 @@ interface PolicyCardProps {
   id?: string;
 }
 
-export function PolicyCard({
+export const PolicyCard = memo(function PolicyCard({
   title,
   description,
   checked,
@@ -51,4 +52,4 @@ export function PolicyCard({
       </button>
     </div>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { SelectHTMLAttributes } from 'react';
 
 export interface SelectOption {
@@ -12,7 +13,7 @@ interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'cla
   fullWidth?: boolean;
 }
 
-export function Select({
+export const Select = memo(function Select({
   label,
   options,
   error,
@@ -62,4 +63,4 @@ export function Select({
       )}
     </div>
   );
-}
+});

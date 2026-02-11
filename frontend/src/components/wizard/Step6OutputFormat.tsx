@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Select, type SelectOption } from '../ui/Select';
 import { Input } from '../ui/Input';
@@ -69,7 +70,7 @@ const DELIVERY_SCHEDULE_OPTIONS: SelectOption[] = [
   { value: 'custom', label: 'Custom Schedule' }
 ];
 
-export function Step6OutputFormat({ data, onChange, step1PickupLocation }: Step6OutputFormatProps) {
+export const Step6OutputFormat = memo(function Step6OutputFormat({ data, onChange, step1PickupLocation }: Step6OutputFormatProps) {
   const handleFormatToggle = (format: 'json' | 'csv', enabled: boolean) => {
     const newSelectedFormats = enabled
       ? [...data.selectedFormats, format]
@@ -325,4 +326,4 @@ export function Step6OutputFormat({ data, onChange, step1PickupLocation }: Step6
       )}
     </div>
   );
-}
+});

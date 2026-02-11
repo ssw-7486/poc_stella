@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 
 interface CardProps {
@@ -6,7 +7,7 @@ interface CardProps {
   className?: string;
 }
 
-export function Card({ title, children, className = '' }: CardProps) {
+export const Card = memo(function Card({ title, children, className = '' }: CardProps) {
   return (
     <div className={`bg-white rounded-md p-6 shadow-sm ${className}`}>
       {title && (
@@ -15,4 +16,4 @@ export function Card({ title, children, className = '' }: CardProps) {
       {children}
     </div>
   );
-}
+});

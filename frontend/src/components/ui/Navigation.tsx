@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './Button';
 
-export function Navigation() {
+export const Navigation = memo(function Navigation() {
   const location = useLocation();
 
   const navLinks = [
@@ -71,4 +72,4 @@ export function Navigation() {
       </div>
     </nav>
   );
-}
+});

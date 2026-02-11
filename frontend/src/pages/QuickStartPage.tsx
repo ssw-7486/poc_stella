@@ -145,12 +145,14 @@ export function QuickStartPage() {
   // Load existing workflow if resuming
   useEffect(() => {
     const resumeId = searchParams.get('workflowId');
+    const stepParam = searchParams.get('step');
     if (resumeId) {
       const workflow = getWorkflowById(resumeId);
       if (workflow) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setWorkflowId(workflow.id);
-        setCurrentStep(workflow.currentStep);
+        // Use step param if provided (for editing completed workflows), otherwise use workflow's currentStep
+        setCurrentStep(stepParam ? parseInt(stepParam, 10) : workflow.currentStep);
         // Convert number to string for form field
         setStep1Data({
           ...workflow.step1Data,
@@ -220,13 +222,13 @@ export function QuickStartPage() {
   };
 
   const handleNext = () => {
-    const workflowData = buildWorkflowData(currentStep + 1);
-
     if (currentStep < 7) {
+      const workflowData = buildWorkflowData(currentStep + 1);
       saveWorkflow(workflowData);
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete wizard
+      // Complete wizard - keep currentStep at 7
+      const workflowData = buildWorkflowData(7);
       workflowData.status = 'completed';
       workflowData.step7Data = {
         ...step7Data,
