@@ -89,6 +89,13 @@ export function WizardLayout({
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm text-navy-dark">Step {currentStep} of {totalSteps}</div>
+              {/* TODO: UX Review - Panel toggle placement may not be intuitive here.
+                  Consider alternative placements:
+                  - Icon button on the border between main content and panel
+                  - Floating button on right edge of screen
+                  - Header action area (if we add one)
+                  - Within the side panel itself (collapsible section header)
+                  Current placement matches wireframe but may need usability testing. */}
               {allowPanelToggle && (
                 <button
                   onClick={togglePanel}
