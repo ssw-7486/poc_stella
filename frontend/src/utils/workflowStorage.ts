@@ -33,7 +33,20 @@ export interface WorkflowData {
     selectedTemplateId: string;
     templateName: string;
   };
-  step3Data?: Record<string, unknown>;
+  step3Data?: {
+    selectedTemplateIds: string[];
+    documentTemplates: Array<{
+      id: string;
+      name: string;
+      lob: string;
+      city: string;
+      classification: 'machine-printed' | 'handwritten' | 'mixed';
+      fieldsDetected: number;
+      accuracy: number;
+      status: 'draft' | 'testing' | 'active' | 'archived';
+      processingPipeline: string;
+    }>;
+  };
   step4Data?: Record<string, unknown>;
   step5Data?: Record<string, unknown>;
   step6Data?: Record<string, unknown>;

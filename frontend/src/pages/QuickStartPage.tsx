@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WizardLayout } from '../components/wizard/WizardLayout';
 import { Step1CompanyInfo } from '../components/wizard/Step1CompanyInfo';
 import { Step2TemplateSelection } from '../components/wizard/Step2TemplateSelection';
+import { Step3DocumentTypes, type Step3Data } from '../components/wizard/Step3DocumentTypes';
+import { MOCK_TEMPLATES } from '../data/mockTemplates';
 import {
   createWorkflow,
   saveWorkflow,
@@ -67,12 +69,18 @@ export function QuickStartPage() {
     templateName: '',
   });
 
+  const [step3Data, setStep3Data] = useState<Step3Data>({
+    selectedTemplateIds: [],
+    documentTemplates: MOCK_TEMPLATES,
+  });
+
   // Load existing workflow if resuming
   useEffect(() => {
     const resumeId = searchParams.get('workflowId');
     if (resumeId) {
       const workflow = getWorkflowById(resumeId);
       if (workflow) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setWorkflowId(workflow.id);
         setCurrentStep(workflow.currentStep);
         // Convert number to string for form field
@@ -85,6 +93,13 @@ export function QuickStartPage() {
           setStep2Data({
             selectedTemplateId: workflow.step2Data.selectedTemplateId || '',
             templateName: workflow.step2Data.templateName || '',
+          });
+        }
+        // Restore step 3 data if it exists
+        if (workflow.step3Data) {
+          setStep3Data({
+            selectedTemplateIds: workflow.step3Data.selectedTemplateIds || [],
+            documentTemplates: workflow.step3Data.documentTemplates || MOCK_TEMPLATES,
           });
         }
       }
@@ -112,6 +127,7 @@ export function QuickStartPage() {
         linesOfBusiness: Number(step1Data.linesOfBusiness) || 0,
       },
       step2Data: step2Data.selectedTemplateId ? step2Data : undefined,
+      step3Data: step3Data.selectedTemplateIds.length > 0 ? step3Data : undefined,
     };
   };
 
@@ -182,10 +198,22 @@ export function QuickStartPage() {
     return '';
   };
 
+  const generateStep3Summary = () => {
+    if (!step3Data.selectedTemplateIds.length) return '';
+    const count = step3Data.selectedTemplateIds.length;
+    const selectedTemplates = MOCK_TEMPLATES.filter(t =>
+      step3Data.selectedTemplateIds.includes(t.id)
+    );
+    const avgAccuracy = selectedTemplates.length > 0
+      ? (selectedTemplates.reduce((sum, t) => sum + t.accuracy, 0) / count).toFixed(1)
+      : '0.0';
+    return `Types: ${count} template${count !== 1 ? 's' : ''}, Avg accuracy ${avgAccuracy}%`;
+  };
+
   const stepSummaries = [
     generateStep1Summary(), // Step 1
     generateStep2Summary(), // Step 2
-    '', // Step 3
+    generateStep3Summary(), // Step 3
     '', // Step 4
     '', // Step 5
     ''  // Step 6
@@ -196,6 +224,7 @@ export function QuickStartPage() {
     switch (currentStep) {
       case 1: return "Let's set up your company";
       case 2: return "Choose a template";
+      case 3: return "Document Types";
       default: return `Step ${currentStep}`;
     }
   };
@@ -204,6 +233,7 @@ export function QuickStartPage() {
     switch (currentStep) {
       case 1: return "This helps us customize your experience";
       case 2: return "Select a workflow template to get started quickly, or build your own from scratch";
+      case 3: return "Select which document templates to include in this workflow";
       default: return "";
     }
   };
@@ -241,6 +271,53 @@ export function QuickStartPage() {
             )}
           </div>
         );
+      case 3:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Templates Selected</h3>
+              {step3Data.selectedTemplateIds.length > 0 ? (
+                <div className="text-xs text-navy-dark space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Count:</span>
+                    <span className="font-bold">{step3Data.selectedTemplateIds.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Avg Accuracy:</span>
+                    <span className="font-bold text-green">
+                      {(() => {
+                        const selected = MOCK_TEMPLATES.filter(t =>
+                          step3Data.selectedTemplateIds.includes(t.id)
+                        );
+                        return selected.length > 0
+                          ? (selected.reduce((sum, t) => sum + t.accuracy, 0) / selected.length).toFixed(1)
+                          : '0.0';
+                      })()}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Total Fields:</span>
+                    <span className="font-bold">
+                      {MOCK_TEMPLATES.filter(t =>
+                        step3Data.selectedTemplateIds.includes(t.id)
+                      ).reduce((sum, t) => sum + t.fieldsDetected, 0)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-dark-grey">No templates selected yet</p>
+              )}
+            </div>
+            <div className="border-t border-navy/10 pt-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Need Help?</h3>
+              <ul className="text-xs text-navy-dark space-y-2">
+                <li>• These templates were created during onboarding and tested with your sample documents</li>
+                <li>• All templates meet the 99.5% accuracy target</li>
+                <li>• You can create new templates or modify existing ones at any time</li>
+              </ul>
+            </div>
+          </div>
+        );
       default:
         return (
           <div>
@@ -266,7 +343,10 @@ export function QuickStartPage() {
       onSaveAndExit={handleSaveAndExit}
       sidePanel={getSidePanel()}
       nextLabel={currentStep === 6 ? 'Finish Setup' : 'Next →'}
-      nextDisabled={currentStep === 2 && !step2Data.selectedTemplateId}
+      nextDisabled={
+        (currentStep === 2 && !step2Data.selectedTemplateId) ||
+        (currentStep === 3 && step3Data.selectedTemplateIds.length === 0)
+      }
     >
       {currentStep === 1 && (
         <Step1CompanyInfo data={step1Data} onChange={setStep1Data} />
@@ -275,10 +355,7 @@ export function QuickStartPage() {
         <Step2TemplateSelection data={step2Data} onChange={setStep2Data} />
       )}
       {currentStep === 3 && (
-        <div className="text-center py-12 text-navy-dark">
-          <p>Step 3: Document Types</p>
-          <p className="text-sm">Coming soon...</p>
-        </div>
+        <Step3DocumentTypes data={step3Data} onChange={setStep3Data} />
       )}
       {currentStep === 4 && (
         <div className="text-center py-12 text-navy-dark">
