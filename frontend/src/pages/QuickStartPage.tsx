@@ -4,6 +4,10 @@ import { WizardLayout } from '../components/wizard/WizardLayout';
 import { Step1CompanyInfo } from '../components/wizard/Step1CompanyInfo';
 import { Step2TemplateSelection } from '../components/wizard/Step2TemplateSelection';
 import { Step3DocumentTypes, type Step3Data } from '../components/wizard/Step3DocumentTypes';
+import { Step4ValidationRules, type Step4Data } from '../components/wizard/Step4ValidationRules';
+import { Step5VolumeEstimate, type Step5Data } from '../components/wizard/Step5VolumeEstimate';
+import { Step6OutputFormat, type Step6Data } from '../components/wizard/Step6OutputFormat';
+import { Step7ReviewAccept, type Step7Data } from '../components/wizard/Step7ReviewAccept';
 import { MOCK_TEMPLATES } from '../data/mockTemplates';
 import {
   createWorkflow,
@@ -74,6 +78,70 @@ export function QuickStartPage() {
     documentTemplates: MOCK_TEMPLATES,
   });
 
+  const [step4Data, setStep4Data] = useState<Step4Data>({
+    enableValidation: true,
+    globalSettings: {
+      confidenceThreshold: 85,
+      enableExternalValidation: true
+    },
+    templateValidation: {}
+  });
+
+  const [step5Data, setStep5Data] = useState<Step5Data>({
+    skipVolumeEstimate: false,
+    volumes: []
+  });
+
+  const [step6Data, setStep6Data] = useState<Step6Data>({
+    json: {
+      enabled: true,
+      fileNaming: '{date}_{batch}_{index}.json',
+      includeMetadata: true,
+      includeConfidenceScores: true,
+      prettyPrint: true,
+      indentation: '2-spaces',
+      schema: 'json-schema-v7',
+      compression: 'none'
+    },
+    csv: {
+      enabled: true,
+      fileNaming: '{date}_{batch}_{index}.csv',
+      delimiter: 'comma',
+      includeHeaders: true,
+      textQualifier: 'double-quotes',
+      encoding: 'utf-8',
+      escapeSpecialChars: true
+    },
+    selectedFormats: ['json', 'csv'],
+    delivery: {
+      method: 'pickup-location',
+      location: '',
+      schedule: 'immediate',
+      notifyOnCompletion: true
+    },
+    auditTrail: {
+      enabled: true,
+      events: [
+        { eventType: 'drop_off_arrived', enabled: true, metadata: [] },
+        { eventType: 'left_for_processing', enabled: true, metadata: [] },
+        { eventType: 'outputs_ready', enabled: true, metadata: [] },
+        { eventType: 'transferred_to_customer', enabled: true, metadata: [] }
+      ],
+      retentionDays: 90
+    }
+  });
+
+  const [step7Data, setStep7Data] = useState<Step7Data>({
+    policiesAccepted: {
+      dpa: false,
+      sla: false,
+      compliance: false,
+      auditRetention: false
+    },
+    acceptedBy: '',
+    acceptedAt: ''
+  });
+
   // Load existing workflow if resuming
   useEffect(() => {
     const resumeId = searchParams.get('workflowId');
@@ -102,6 +170,22 @@ export function QuickStartPage() {
             documentTemplates: workflow.step3Data.documentTemplates || MOCK_TEMPLATES,
           });
         }
+        // Restore step 4 data if it exists
+        if (workflow.step4Data) {
+          setStep4Data(workflow.step4Data as Step4Data);
+        }
+        // Restore step 5 data if it exists
+        if (workflow.step5Data) {
+          setStep5Data(workflow.step5Data as Step5Data);
+        }
+        // Restore step 6 data if it exists
+        if (workflow.step6Data) {
+          setStep6Data(workflow.step6Data as Step6Data);
+        }
+        // Restore step 7 data if it exists
+        if (workflow.step7Data) {
+          setStep7Data(workflow.step7Data as Step7Data);
+        }
       }
     }
   }, [searchParams]);
@@ -128,20 +212,28 @@ export function QuickStartPage() {
       },
       step2Data: step2Data.selectedTemplateId ? step2Data : undefined,
       step3Data: step3Data.selectedTemplateIds.length > 0 ? step3Data : undefined,
+      step4Data: step4Data,
+      step5Data: step5Data,
+      step6Data: step6Data,
+      step7Data: step7Data.acceptedBy ? step7Data : undefined,
     };
   };
 
   const handleNext = () => {
     const workflowData = buildWorkflowData(currentStep + 1);
 
-    if (currentStep < 6) {
+    if (currentStep < 7) {
       saveWorkflow(workflowData);
       setCurrentStep(currentStep + 1);
     } else {
       // Complete wizard
       workflowData.status = 'completed';
+      workflowData.step7Data = {
+        ...step7Data,
+        acceptedAt: new Date().toISOString()
+      };
       saveWorkflow(workflowData);
-      navigate('/workflows');
+      navigate('/dashboard');
     }
   };
 
@@ -162,6 +254,10 @@ export function QuickStartPage() {
     saveWorkflow(workflowData);
     alert('Progress saved! You can resume from the Dashboard.');
     navigate('/dashboard');
+  };
+
+  const handleEditStep = (step: number) => {
+    setCurrentStep(step);
   };
 
   // Generate step summaries
@@ -210,13 +306,43 @@ export function QuickStartPage() {
     return `Types: ${count} template${count !== 1 ? 's' : ''}, Avg accuracy ${avgAccuracy}%`;
   };
 
+  const generateStep4Summary = () => {
+    if (!step4Data.enableValidation) return 'Validation: Disabled';
+    const totalRules = Object.values(step4Data.templateValidation)
+      .reduce((sum, cfg) => sum + cfg.validationRules.length, 0);
+    const totalRequired = Object.values(step4Data.templateValidation)
+      .reduce((sum, cfg) => sum + cfg.requiredFields.length, 0);
+    const rag = step4Data.globalSettings.enableExternalValidation ? 'enabled' : 'disabled';
+    return `Validation: ${totalRules} rules, ${totalRequired} required fields, RAG ${rag}`;
+  };
+
+  const generateStep5Summary = () => {
+    if (step5Data.skipVolumeEstimate) return 'Volume: Skipped';
+    const total = step5Data.volumes.reduce((sum, v) => sum + Number(v.expectedMonthlyVolume || 0), 0);
+    return `Volume: ${total.toLocaleString()} docs/month across ${step5Data.volumes.length} LOB${step5Data.volumes.length !== 1 ? 's' : ''}`;
+  };
+
+  const generateStep6Summary = () => {
+    const formats = step6Data.selectedFormats.length > 0
+      ? step6Data.selectedFormats.join(' + ').toUpperCase()
+      : 'None';
+    const method = step6Data.delivery.schedule;
+    return `Output: ${formats}, ${method} delivery, Audit enabled`;
+  };
+
+  const generateStep7Summary = () => {
+    if (!step7Data.acceptedBy) return '';
+    return `Review: Signed by ${step7Data.acceptedBy}`;
+  };
+
   const stepSummaries = [
     generateStep1Summary(), // Step 1
     generateStep2Summary(), // Step 2
     generateStep3Summary(), // Step 3
-    '', // Step 4
-    '', // Step 5
-    ''  // Step 6
+    generateStep4Summary(), // Step 4
+    generateStep5Summary(), // Step 5
+    generateStep6Summary(), // Step 6
+    generateStep7Summary()  // Step 7
   ];
 
   // Step-specific titles and subtitles
@@ -225,6 +351,10 @@ export function QuickStartPage() {
       case 1: return "Let's set up your company";
       case 2: return "Choose a template";
       case 3: return "Document Types";
+      case 4: return "Validation Rules";
+      case 5: return "Volume Estimate";
+      case 6: return "Output Format";
+      case 7: return "Review & Accept";
       default: return `Step ${currentStep}`;
     }
   };
@@ -234,6 +364,10 @@ export function QuickStartPage() {
       case 1: return "This helps us customize your experience";
       case 2: return "Select a workflow template to get started quickly, or build your own from scratch";
       case 3: return "Select which document templates to include in this workflow";
+      case 4: return "Configure validation rules for your document processing";
+      case 5: return "Estimate your monthly document processing volume";
+      case 6: return "Choose how processed documents will be delivered";
+      case 7: return "Review your configuration and accept policies to complete setup";
       default: return "";
     }
   };
@@ -318,6 +452,133 @@ export function QuickStartPage() {
             </div>
           </div>
         );
+      case 4:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Validation Summary</h3>
+              {step4Data.enableValidation ? (
+                <div className="text-xs text-navy-dark space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Threshold:</span>
+                    <span className="font-bold">{step4Data.globalSettings.confidenceThreshold}%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">RAG:</span>
+                    <span className="font-bold">{step4Data.globalSettings.enableExternalValidation ? 'Enabled' : 'Disabled'}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-dark-grey">Validation disabled</p>
+              )}
+            </div>
+            <div className="border-t border-navy/10 pt-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">About Validation</h3>
+              <ul className="text-xs text-navy-dark space-y-2">
+                <li>• Validation rules help ensure data accuracy</li>
+                <li>• RAG validates against external databases</li>
+                <li>• You can customize rules per template</li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Volume Summary</h3>
+              {!step5Data.skipVolumeEstimate && step5Data.volumes.length > 0 ? (
+                <div className="text-xs text-navy-dark space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Total/Month:</span>
+                    <span className="font-bold text-green">
+                      {step5Data.volumes.reduce((sum, v) => sum + Number(v.expectedMonthlyVolume || 0), 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">LOBs:</span>
+                    <span className="font-bold">{step5Data.volumes.length}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-dark-grey">{step5Data.skipVolumeEstimate ? 'Skipped' : 'No volumes entered'}</p>
+              )}
+            </div>
+            <div className="border-t border-navy/10 pt-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Why Volume Matters</h3>
+              <ul className="text-xs text-navy-dark space-y-2">
+                <li>• Helps optimize resource allocation</li>
+                <li>• Enables accurate capacity planning</li>
+                <li>• You can skip and update later</li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 6:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Output Summary</h3>
+              {step6Data.selectedFormats.length > 0 ? (
+                <div className="text-xs text-navy-dark space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Formats:</span>
+                    <span className="font-bold">{step6Data.selectedFormats.join(' + ').toUpperCase()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Delivery:</span>
+                    <span className="font-bold capitalize">{step6Data.delivery.schedule.replace(/-/g, ' ')}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Audit Trail:</span>
+                    <span className="font-bold text-green">Enabled</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-dark-grey">No formats selected</p>
+              )}
+            </div>
+            <div className="border-t border-navy/10 pt-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Output Options</h3>
+              <ul className="text-xs text-navy-dark space-y-2">
+                <li>• JSON: Structured data with metadata</li>
+                <li>• CSV: Spreadsheet-friendly format</li>
+                <li>• Audit trail required per G9</li>
+              </ul>
+            </div>
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Completion Status</h3>
+              <div className="text-xs text-navy-dark space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Policies:</span>
+                  <span className={`font-bold ${Object.values(step7Data.policiesAccepted).every(Boolean) ? 'text-green' : 'text-red'}`}>
+                    {Object.values(step7Data.policiesAccepted).filter(Boolean).length}/4
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Signature:</span>
+                  <span className={`font-bold ${step7Data.acceptedBy.trim().length >= 2 ? 'text-green' : 'text-red'}`}>
+                    {step7Data.acceptedBy.trim().length >= 2 ? 'Complete' : 'Required'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-navy/10 pt-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-2">Final Steps</h3>
+              <ul className="text-xs text-navy-dark space-y-2">
+                <li>• Review all configuration steps</li>
+                <li>• Accept all 4 policies</li>
+                <li>• Provide electronic signature</li>
+                <li>• Click "Complete Setup" to finish</li>
+              </ul>
+            </div>
+          </div>
+        );
       default:
         return (
           <div>
@@ -333,7 +594,7 @@ export function QuickStartPage() {
   return (
     <WizardLayout
       currentStep={currentStep}
-      totalSteps={6}
+      totalSteps={7}
       stepTitle={getStepTitle()}
       stepSubtitle={getStepSubtitle()}
       stepSummaries={stepSummaries}
@@ -342,12 +603,20 @@ export function QuickStartPage() {
       onCancel={handleCancel}
       onSaveAndExit={handleSaveAndExit}
       sidePanel={getSidePanel()}
-      nextLabel={currentStep === 6 ? 'Finish Setup' : 'Next →'}
+      nextLabel={currentStep === 7 ? 'Complete Setup' : 'Next →'}
       nextDisabled={
         (currentStep === 2 && !step2Data.selectedTemplateId) ||
-        (currentStep === 3 && step3Data.selectedTemplateIds.length === 0)
+        (currentStep === 3 && step3Data.selectedTemplateIds.length === 0) ||
+        (currentStep === 6 && step6Data.selectedFormats.length === 0) ||
+        (currentStep === 7 && (
+          !step7Data.policiesAccepted.dpa ||
+          !step7Data.policiesAccepted.sla ||
+          !step7Data.policiesAccepted.compliance ||
+          !step7Data.policiesAccepted.auditRetention ||
+          step7Data.acceptedBy.trim().length < 2
+        ))
       }
-      allowPanelToggle={currentStep === 3}
+      allowPanelToggle={currentStep === 3 || currentStep === 6}
     >
       {currentStep === 1 && (
         <Step1CompanyInfo data={step1Data} onChange={setStep1Data} />
@@ -359,22 +628,33 @@ export function QuickStartPage() {
         <Step3DocumentTypes data={step3Data} onChange={setStep3Data} />
       )}
       {currentStep === 4 && (
-        <div className="text-center py-12 text-navy-dark">
-          <p>Step 4: Validation Rules</p>
-          <p className="text-sm">Coming soon...</p>
-        </div>
+        <Step4ValidationRules
+          data={step4Data}
+          onChange={setStep4Data}
+          step3Data={step3Data}
+        />
       )}
       {currentStep === 5 && (
-        <div className="text-center py-12 text-navy-dark">
-          <p>Step 5: Volume Estimate</p>
-          <p className="text-sm">Coming soon...</p>
-        </div>
+        <Step5VolumeEstimate
+          data={step5Data}
+          onChange={setStep5Data}
+          step1LobCount={Number(step1Data.linesOfBusiness)}
+        />
       )}
       {currentStep === 6 && (
-        <div className="text-center py-12 text-navy-dark">
-          <p>Step 6: Output Format</p>
-          <p className="text-sm">Coming soon...</p>
-        </div>
+        <Step6OutputFormat
+          data={step6Data}
+          onChange={setStep6Data}
+          step1PickupLocation={step1Data.securePickupLocation}
+        />
+      )}
+      {currentStep === 7 && (
+        <Step7ReviewAccept
+          data={step7Data}
+          onChange={setStep7Data}
+          stepSummaries={stepSummaries.slice(0, 6)}
+          onEditStep={handleEditStep}
+        />
       )}
     </WizardLayout>
   );

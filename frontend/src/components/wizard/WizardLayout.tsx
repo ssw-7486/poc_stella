@@ -31,7 +31,8 @@ const STEP_NAMES = [
   'Document Types',
   'Validation Rules',
   'Volume Estimate',
-  'Output Format'
+  'Output Format',
+  'Review & Accept'
 ];
 
 export function WizardLayout({

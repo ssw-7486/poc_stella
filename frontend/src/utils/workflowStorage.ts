@@ -64,17 +64,7 @@ export interface WorkflowData {
       peakProcessingPeriod: string;
     }>;
   };
-  step6Data?: {
-    json: Record<string, unknown>;
-    csv: Record<string, unknown>;
-    selectedFormats: string[];
-    delivery: Record<string, unknown>;
-    auditTrail: {
-      enabled: boolean;
-      events: unknown[];
-      retentionDays: number;
-    };
-  };
+  step6Data?: unknown;
   step7Data?: {
     policiesAccepted: {
       dpa: boolean;
