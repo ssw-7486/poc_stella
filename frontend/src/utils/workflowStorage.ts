@@ -47,9 +47,44 @@ export interface WorkflowData {
       processingPipeline: string;
     }>;
   };
-  step4Data?: Record<string, unknown>;
-  step5Data?: Record<string, unknown>;
-  step6Data?: Record<string, unknown>;
+  step4Data?: {
+    enableValidation: boolean;
+    globalSettings: {
+      confidenceThreshold: number;
+      enableExternalValidation: boolean;
+    };
+    templateValidation: Record<string, unknown>;
+  };
+  step5Data?: {
+    skipVolumeEstimate: boolean;
+    volumes: Array<{
+      lobId: string;
+      lobName: string;
+      expectedMonthlyVolume: number | string;
+      peakProcessingPeriod: string;
+    }>;
+  };
+  step6Data?: {
+    json: Record<string, unknown>;
+    csv: Record<string, unknown>;
+    selectedFormats: string[];
+    delivery: Record<string, unknown>;
+    auditTrail: {
+      enabled: boolean;
+      events: unknown[];
+      retentionDays: number;
+    };
+  };
+  step7Data?: {
+    policiesAccepted: {
+      dpa: boolean;
+      sla: boolean;
+      compliance: boolean;
+      auditRetention: boolean;
+    };
+    acceptedBy: string;
+    acceptedAt: string;
+  };
 }
 
 const STORAGE_KEY = 'stella_workflows';
