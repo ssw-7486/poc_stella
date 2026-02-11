@@ -476,6 +476,43 @@ React Hook useEffect has missing dependencies: 'data' and 'onChange'
 
 ---
 
+### Issue 7: Git Workflow - Direct Push to Master Rejected
+**Error:**
+```
+! [rejected]        HEAD -> master (fetch first)
+error: failed to push some refs to 'https://github.com/ssw-7486/poc_stella'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally.
+```
+
+**Cause:**
+- Worked directly on `master` branch instead of creating a feature branch
+- Remote `master` had diverged (contained commit `9a4c28a` we didn't have locally)
+- Attempted to push directly to `master`, which created a merge conflict
+
+**Resolution:**
+1. Fetched from remote: `git fetch origin`
+2. Rebased local commits on top of remote: `git pull --rebase origin master`
+3. Successfully pushed rebased commits: `git push -u origin HEAD`
+
+**Commit Hash Changes (rebase effect):**
+- `d864ea0` → `6784efb` (Session notes)
+- `eda0b68` → `2d4b966` (QuickStartPage integration)
+- `db10522` → `fbe8d9e` (Steps 4-7 components)
+
+**Root Problem:** Working directly on `master` branch is risky and creates merge conflicts. Should use feature branches for all work.
+
+**Lesson Learned:**
+- **NEVER work directly on master branch**
+- Always create a session/feature branch before starting work
+- Keep master branch clean and in sync with remote
+- Use fast-forward-only pulls to detect divergence early
+- Feature branch workflow prevents conflicts and allows clean PR reviews
+
+**Prevention:** Added mandatory session startup check to CLAUDE.md (see below).
+
+---
+
 ## Key Architectural Decisions
 
 ### 1. State Management Pattern

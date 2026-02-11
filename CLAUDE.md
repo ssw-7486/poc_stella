@@ -53,6 +53,78 @@ Session-Startup Checklist (Required)
 
 Before beginning any task, Claude must complete and confirm the following checklist in writing.
 
+0. Git Workflow Setup (MANDATORY)
+
+**CRITICAL:** Never work directly on master. Always use a feature branch.
+
+**ENFORCEMENT:** Run this startup script at the beginning of EVERY session before any work.
+
+```bash
+echo "=== CLAUDE SESSION STARTUP CHECK ==="
+
+# 1. Check for uncommitted changes (auto-stash if needed)
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Uncommitted changes detected. Auto-stashing..."
+  git stash push -u -m "claude session autostash $(date '+%Y-%m-%d %H:%M')" || {
+    echo "❌ Stash failed. STOP."
+    exit 1
+  }
+  echo "✅ Changes stashed. Will restore after branch creation."
+  STASHED=1
+else
+  STASHED=0
+fi
+
+# 2. Ensure we are on master and synced
+git checkout master || exit 1
+git fetch origin || exit 1
+git pull --ff-only origin master || {
+  echo "❌ Master is not fast-forward clean. STOP."
+  exit 1
+}
+
+# 3. Show branch + remote status
+echo ""
+echo "=== BRANCH STATUS ==="
+git status -sb
+git remote -v
+
+# 4. Create a new working branch (required)
+BRANCH="claude/session-$(date +%Y%m%d-%H%M)"
+git checkout -b "$BRANCH" || exit 1
+git push -u origin "$BRANCH" || exit 1
+
+# 5. Restore stashed changes (if any)
+if [ $STASHED -eq 1 ]; then
+  echo ""
+  echo "Restoring stashed changes..."
+  git stash pop || {
+    echo "⚠️  Stash pop failed. Changes remain in stash."
+  }
+fi
+
+echo ""
+echo "✅ Session branch created: $BRANCH"
+echo "All work must be committed here."
+echo "NEVER push directly to master."
+```
+
+**Confirm to user:**
+- ✅ Uncommitted changes auto-stashed (if any)
+- ✅ Master synced with origin
+- ✅ New session branch created: `claude/session-YYYYMMDD-HHMM`
+- ✅ Branch pushed to origin and tracking remote
+- ✅ Stashed changes restored (if any)
+
+**If the startup check fails:**
+- STOP immediately
+- Report the error to the user
+- Ask for guidance before proceeding
+
+**Rationale:** Working on master creates merge conflicts when remote diverges. Feature branches enable clean PR workflow and prevent push conflicts. Auto-stash preserves work-in-progress.
+
+⸻
+
 1. Context Confirmation
 
 State explicitly:
@@ -118,6 +190,129 @@ End the checklist with one of the following:
 	•	“Blocking questions before proceeding:” (list them)
 
 Claude must not begin execution until this checklist is complete.
+
+⸻
+
+Mandatory End-of-Session Protocol (Required)
+
+**CRITICAL:** Before ending any session, Claude must run this end-of-session script and confirm results.
+
+**ENFORCEMENT:** Run this at the conclusion of EVERY session to ensure work is committed, pushed, validated, and PR is created.
+
+```bash
+echo "=== CLAUDE SESSION END CHECK ==="
+
+# 1. Refuse to run on master
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" = "master" ]; then
+  echo "❌ You are on master. Work must not be committed directly to master."
+  exit 1
+fi
+
+# 2. Show status
+echo ""
+echo "=== WORKING TREE STATUS ==="
+git status -sb
+
+# 3. Auto-add changes (if any)
+if [ -n "$(git status --porcelain)" ]; then
+  echo ""
+  echo "Changes detected. Committing..."
+  git add -A
+  git commit -m "Claude session work: $(date '+%Y-%m-%d %H:%M')" || exit 1
+else
+  echo "No uncommitted changes."
+fi
+
+# 4. Push branch (ensures nothing is local-only)
+git push -u origin "$CURRENT_BRANCH" || exit 1
+
+# 5. Lint + Build (safety gate)
+echo ""
+echo "=== BUILD VALIDATION ==="
+cd frontend || exit 1
+npm run lint || exit 1
+npm run build || exit 1
+cd ..
+
+# 6. Create PR (if none exists)
+echo ""
+echo "=== PULL REQUEST CHECK ==="
+if ! gh pr view "$CURRENT_BRANCH" >/dev/null 2>&1; then
+  gh pr create \
+    --base master \
+    --head "$CURRENT_BRANCH" \
+    --title "Claude: $CURRENT_BRANCH" \
+    --body "Automated PR from Claude session." || exit 1
+else
+  echo "PR already exists."
+fi
+
+echo ""
+echo "✅ End-of-session complete."
+echo "Branch pushed. Build passed. PR created or confirmed."
+```
+
+**Confirm to user:**
+- ✅ Not on master branch (safety check passed)
+- ✅ All changes committed (if any)
+- ✅ Branch pushed to origin
+- ✅ Lint passed
+- ✅ Build passed
+- ✅ PR created or already exists
+
+**If the end-of-session check fails:**
+- Report which step failed
+- Show the error to the user
+- Ask for guidance on how to proceed
+
+**Rationale:** Ensures all work is safely committed, validated, and ready for review. Prevents local-only work from being lost. Automates PR creation for clean handoff.
+
+⸻
+
+Post-Merge Cleanup (Manual)
+
+After a PR is merged to master, clean up the session branch to keep the repository tidy.
+
+**IMPORTANT:** This is a MANUAL process. Do NOT run automatically unless explicitly requested by the user.
+
+```bash
+echo "=== POST-MERGE CLEANUP ==="
+
+# 1. Switch to master and sync
+git checkout master
+git fetch origin
+git pull --ff-only origin master
+
+# 2. Identify merged branches
+echo ""
+echo "=== MERGED SESSION BRANCHES ==="
+git branch --merged master | grep "claude/session-"
+
+# 3. Delete local session branches
+echo ""
+echo "Deleting local session branches..."
+git branch --merged master | grep "claude/session-" | xargs -n 1 git branch -d
+
+# 4. Delete remote session branches
+echo ""
+echo "Deleting remote session branches..."
+git branch -r --merged master | grep "origin/claude/session-" | sed 's/origin\///' | xargs -n 1 git push origin --delete
+
+echo ""
+echo "✅ Cleanup complete."
+echo "Merged session branches removed from local and remote."
+```
+
+**When to use:**
+- After PR is merged to master
+- Periodically to clean up old merged branches
+- Only when explicitly requested by user
+
+**Safety:**
+- Only deletes branches that are fully merged to master
+- Uses `--merged` flag to prevent accidental deletion of unmerged work
+- User must run manually to maintain control
 
 ⸻
 
