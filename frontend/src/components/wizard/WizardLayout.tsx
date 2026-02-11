@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { Navigation } from '../ui/Navigation';
 
 interface WizardStep {
@@ -22,6 +22,7 @@ interface WizardLayoutProps {
   onSaveAndExit: () => void;
   nextDisabled?: boolean;
   nextLabel?: string;
+  allowPanelToggle?: boolean; // Enable panel hide/show functionality
 }
 
 const STEP_NAMES = [
@@ -46,9 +47,29 @@ export function WizardLayout({
   onCancel,
   onSaveAndExit,
   nextDisabled = false,
-  nextLabel = 'Next →'
+  nextLabel = 'Next →',
+  allowPanelToggle = false
 }: WizardLayoutProps) {
   const progressPercentage = (currentStep / totalSteps) * 100;
+
+  // Panel toggle state with localStorage persistence
+  const panelStorageKey = `wizard_step${currentStep}_panel_visible`;
+  const [isPanelVisible, setIsPanelVisible] = useState<boolean>(() => {
+    if (!allowPanelToggle) return true; // Always visible if toggle not allowed
+    const stored = localStorage.getItem(panelStorageKey);
+    return stored !== null ? stored === 'true' : false; // Default: hidden
+  });
+
+  // Persist panel state to localStorage
+  useEffect(() => {
+    if (allowPanelToggle) {
+      localStorage.setItem(panelStorageKey, String(isPanelVisible));
+    }
+  }, [isPanelVisible, panelStorageKey, allowPanelToggle]);
+
+  const togglePanel = () => {
+    setIsPanelVisible(!isPanelVisible);
+  };
 
   const steps: WizardStep[] = STEP_NAMES.map((name, index) => ({
     number: index + 1,
@@ -62,11 +83,21 @@ export function WizardLayout({
       <Navigation />
 
       <div className="flex">
-        {/* Main Content Area - 70% */}
-        <div className="w-[70%] p-8">
+        {/* Main Content Area - Dynamic width based on panel state */}
+        <div className={`p-8 transition-all duration-300 ${isPanelVisible ? 'w-[70%]' : 'w-full'}`}>
           {/* Progress Bar */}
           <div className="mb-6">
-            <div className="text-sm text-navy-dark mb-2">Step {currentStep} of {totalSteps}</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm text-navy-dark">Step {currentStep} of {totalSteps}</div>
+              {allowPanelToggle && (
+                <button
+                  onClick={togglePanel}
+                  className="text-xs text-primary hover:text-primary-medium transition-colors font-medium"
+                >
+                  {isPanelVisible ? '← Hide' : 'Show →'}
+                </button>
+              )}
+            </div>
             <div className="w-full h-2 bg-light-grey rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-300"
@@ -123,55 +154,57 @@ export function WizardLayout({
           </div>
         </div>
 
-        {/* Side Panel - 30% */}
-        <div className="w-[30%] bg-lightest-grey border-l border-light-grey p-6">
-          {/* Progress Stepper */}
-          <div className="bg-white rounded-xl p-4 mb-4">
-            <h3 className="text-sm font-semibold text-navy-darkest mb-4">Your Progress</h3>
-            <div className="space-y-3">
-              {steps.map((step) => (
-                <div key={step.number}>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      {step.status === 'completed' && (
-                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">
-                          ✓
-                        </div>
-                      )}
-                      {step.status === 'current' && (
-                        <div className="w-6 h-6 rounded-full bg-navy-darkest flex items-center justify-center text-white text-xs font-bold">
-                          ●
-                        </div>
-                      )}
-                      {step.status === 'pending' && (
-                        <div className="w-6 h-6 rounded-full border-2 border-dark-grey flex items-center justify-center text-dark-grey text-xs">
-                          ○
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-sm ${step.status === 'current' ? 'font-bold text-navy-darkest' : 'text-navy-dark'}`}>
-                        {step.name}
+        {/* Side Panel - 30% - Conditionally rendered */}
+        {isPanelVisible && (
+          <div className="w-[30%] bg-lightest-grey border-l border-light-grey p-6 transition-all duration-300">
+            {/* Progress Stepper */}
+            <div className="bg-white rounded-xl p-4 mb-4">
+              <h3 className="text-sm font-semibold text-navy-darkest mb-4">Your Progress</h3>
+              <div className="space-y-3">
+                {steps.map((step) => (
+                  <div key={step.number}>
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        {step.status === 'completed' && (
+                          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">
+                            ✓
+                          </div>
+                        )}
+                        {step.status === 'current' && (
+                          <div className="w-6 h-6 rounded-full bg-navy-darkest flex items-center justify-center text-white text-xs font-bold">
+                            ●
+                          </div>
+                        )}
+                        {step.status === 'pending' && (
+                          <div className="w-6 h-6 rounded-full border-2 border-dark-grey flex items-center justify-center text-dark-grey text-xs">
+                            ○
+                          </div>
+                        )}
                       </div>
-                      {step.summary && (step.status === 'completed' || step.status === 'current') && (
-                        <div className="text-xs text-dark-grey mt-1 break-words">
-                          {step.summary}
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm ${step.status === 'current' ? 'font-bold text-navy-darkest' : 'text-navy-dark'}`}>
+                          {step.name}
                         </div>
-                      )}
+                        {step.summary && (step.status === 'completed' || step.status === 'current') && (
+                          <div className="text-xs text-dark-grey mt-1 break-words">
+                            {step.summary}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Side Panel Content */}
-          {sidePanel && (
-            <div className="bg-white rounded-xl p-4">
-              {sidePanel}
-            </div>
-          )}
-        </div>
+            {/* Side Panel Content */}
+            {sidePanel && (
+              <div className="bg-white rounded-xl p-4">
+                {sidePanel}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

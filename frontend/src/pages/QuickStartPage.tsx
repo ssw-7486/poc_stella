@@ -347,6 +347,7 @@ export function QuickStartPage() {
         (currentStep === 2 && !step2Data.selectedTemplateId) ||
         (currentStep === 3 && step3Data.selectedTemplateIds.length === 0)
       }
+      allowPanelToggle={currentStep === 3}
     >
       {currentStep === 1 && (
         <Step1CompanyInfo data={step1Data} onChange={setStep1Data} />
