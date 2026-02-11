@@ -11,12 +11,12 @@
 
 ## Overview
 
-The Quick Start Wizard is a 6-step onboarding flow that helps new customers set up their OCR processing workflow. The wizard collects company information, template preferences, and configuration settings to create an initial workflow.
+The Quick Start Wizard is a 7-step onboarding flow that helps new customers set up their OCR processing workflow. The wizard collects company information, template preferences, and configuration settings, and requires policy acceptance before creating an initial workflow.
 
-**Total Steps:** 6
-**Estimated Time:** 4-5 minutes
+**Total Steps:** 7 (Steps 1-6 + Step 7 Review & Accept)
+**Estimated Time:** 5-7 minutes
 **Entry Point:** Dashboard "Quick Start" button or `/quick-start` route
-**Exit Point:** Workflow Editor (`/workflows`) after completion
+**Exit Point:** Dashboard (`/dashboard`) after completion, with new workflow created
 
 ---
 
@@ -606,53 +606,476 @@ or build your own from scratch
 
 ## Step 3: Document Types
 
-**Status:** Pending design
-**Purpose:** Select which document types will be processed
+**Status:** Design complete (Session 2026-02-10)
+**Purpose:** Select pre-created document templates for this workflow
+**Related:** [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md)
+**Diagram:** [step3-user-interaction-flow.md](../diagrams/step3-user-interaction-flow.md)
 
-**Placeholder:** To be defined in future session
+### Metadata
+- **Title:** "Document Types"
+- **Subtitle:** "Select which document templates to include in this workflow"
+- **Estimated Time:** 1-2 minutes
+- **Required:** Yes (must select at least 1 template)
+
+### Key Concepts
+
+**MAJOR DESIGN CHANGE:** Step 3 no longer uses a matrix selection of document types × file formats. Instead, it displays **pre-created document templates** from the Template Creation Workflow.
+
+**Template-First Approach:**
+1. Administrators create templates via Template Creation Workflow (admin-only)
+2. Templates are tested and validated (accuracy tracking, field detection)
+3. Customers select pre-created templates in Quick Start Wizard Step 3
+4. Selected templates pre-populate Steps 4-6 with validation rules, volume estimates, output formats
+
+### Data Structure
+
+```typescript
+interface Step3Data {
+  selectedTemplateIds: string[];  // Array of selected template IDs
+  documentTemplates: DocumentTemplate[];  // Full template objects for display
+}
+```
+
+### UI Summary
+
+**Template Cards Display:**
+- Single-column scrollable list
+- Each card shows: Name, LOB, City, Classification, Fields count, Accuracy %, Status, Processing pipeline
+- Checkbox for selection
+- [View Details] button (opens modal - Phase 2 feature)
+
+**Footer Actions:**
+- [+ Create New Template] [View Template Library]
+- "Selected: X templates | Avg Accuracy: Y%"
+
+**Validation:** Must select at least 1 template to proceed
+
+**Empty State:** Show CTA to create first template if none exist
+
+**Summary Text:** `"Types: X templates, Avg accuracy Y%"`
+
+See [SESSION_2026-02-10](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) for complete UI specification, mockup, and gap analysis.
 
 ---
 
 ## Step 4: Validation Rules
 
-**Status:** Pending design
-**Purpose:** Configure business rules and validation logic
+**Status:** Design complete (Session 2026-02-10)
+**Purpose:** Configure validation rules and external validation for selected templates
+**Related:** [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md)
 
-**Placeholder:** To be defined in future session
+### Metadata
+- **Title:** "Validation Rules"
+- **Subtitle:** "Configure validation rules for your document processing"
+- **Estimated Time:** 2-3 minutes
+- **Required:** Optional (can proceed with validation disabled)
+
+### Key Concepts
+
+**Pre-loaded from Templates:** Validation rules are automatically loaded from templates selected in Step 3, but can be customized per-workflow.
+
+**External Validation via RAG:** Supports validation against external reference databases (zip codes, country codes, state codes) via Reference Augmented Generation.
+
+### Data Structure
+
+```typescript
+interface Step4Data {
+  enableValidation: boolean;  // Master toggle
+  templateValidation: Record<string, ValidationConfig>;  // Per-template rules
+  globalSettings: {
+    confidenceThreshold: number;  // Flag if OCR confidence < threshold
+    enableExternalValidation: boolean;  // Master toggle for RAG
+  };
+}
+```
+
+### UI Summary
+
+**Global Settings:**
+- Enable Validation toggle
+- Global Confidence Threshold slider (e.g., 85%)
+- Enable External Validation (RAG) toggle
+
+**Per-Template Configuration:**
+- Required fields list (checkboxes)
+- Validation rules table (field, rule type, action, enable/edit/remove)
+- External validation list (field, validation type, enable)
+
+**Summary Text:** `"Validation: X rules, Y required fields, RAG enabled/disabled"`
+
+See [SESSION_2026-02-10](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) for complete specification.
 
 ---
 
 ## Step 5: Volume Estimate
 
-**Status:** Pending design
-**Purpose:** Estimate monthly processing volume for capacity planning
+**Status:** Design complete (Session 2026-02-10)
+**Purpose:** Estimate processing volume per Line of Business for capacity planning
+**Related:** [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md)
 
-**Placeholder:** To be defined in future session
+### Metadata
+- **Title:** "Volume Estimate"
+- **Subtitle:** "Estimate your monthly document processing volume"
+- **Estimated Time:** 1-2 minutes
+- **Required:** Optional (can skip with warning)
+
+### Key Concepts
+
+**Dynamic Sections:** Number of LOB sections is determined by Step 1 field "No. of Lines of Business Being Processed"
+
+**Example:** If Step 1 = "3" lines of business, Step 5 shows 3 LOB sections
+
+### Data Structure
+
+```typescript
+interface Step5Data {
+  volumeByLOB: Record<string, VolumeEstimate>;
+}
+
+interface VolumeEstimate {
+  lobName: string;  // e.g., "Traffic Enforcement"
+  monthlyVolume: number;  // e.g., 150000
+  peakPeriod?: string;  // e.g., "End of month" (optional)
+}
+```
+
+### UI Summary
+
+**Per-LOB Section:**
+- LOB Name (text input, required)
+- Expected Monthly Volume (number input, required)
+- Peak Processing Period (text input, optional)
+
+**Side Panel:** Shows total estimated volume across all LOBs
+
+**Skip Logic:** Can skip step entirely with warning dialog
+
+**Summary Text:** `"Volume: X docs/month across Y LOBs"`
+
+See [SESSION_2026-02-10](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) for complete specification.
 
 ---
 
 ## Step 6: Output Format
 
-**Status:** Pending design
-**Purpose:** Define how processed data will be exported
+**Status:** Design complete (Session 2026-02-10)
+**Purpose:** Define output formats, delivery method, and audit trail configuration
+**Related:** [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md)
 
-**Placeholder:** To be defined in future session
+### Metadata
+- **Title:** "Output Format"
+- **Subtitle:** "Choose how processed documents will be delivered"
+- **Estimated Time:** 1-2 minutes
+- **Required:** Yes (must select at least 1 output format)
+
+### Key Concepts
+
+**Audit Trail Always Enabled:** Per G9 and FR-009 requirements, audit logging is mandatory and cannot be disabled.
+
+**Tracked Events:**
+1. Documents arrive at drop-off location
+2. Documents leave for processing
+3. Outputs ready before transfer
+4. Documents transferred to customer pickup
+
+### Data Structure
+
+```typescript
+interface Step6Data {
+  outputFormats: OutputFormatConfig;
+  selectedFormats: ('json' | 'csv')[];
+  auditTrail: {
+    enabled: boolean;  // Always true (read-only)
+    events: AuditEventConfig[];
+    retentionDays: number;  // Default: 90 days
+  };
+}
+```
+
+### UI Summary
+
+**Output Formats Section:**
+- JSON Files (checkbox with options: include metadata, include confidence scores)
+- CSV Export (checkbox with options: delimiter, include headers)
+
+**Delivery Method Section:**
+- Method dropdown (Pickup Location, S3 Bucket, API Webhook)
+- Location/endpoint configuration (pre-filled from Step 1 if pickup location)
+- Schedule dropdown (Daily, Weekly, etc.)
+- Notify on completion checkbox
+
+**Audit Trail Section (Read-Only):**
+- Always enabled banner
+- List of tracked events (all enabled by default)
+- Retention period dropdown (30, 60, 90, 180, 365 days)
+- Access control info (Administrators and select Power Analysts)
+
+**Validation:** Must select at least 1 output format
+
+**Summary Text:** `"Output: JSON + CSV, Daily pickup, Audit enabled"`
+
+See [SESSION_2026-02-10](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) for complete specification and detailed audit trail configuration
 
 ---
 
-## Confirmation Screen
+## Step 7: Review & Accept
 
-**Status:** Pending design
-**Purpose:** Review all entries before finalizing setup
+**Status:** Design complete (Session 2026-02-10)
+**Purpose:** Review all entries, accept security/privacy policies, and finalize workflow setup
+**Related:** [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md)
+**Wireframe:** [step7-review-accept-single-column.md](../wireframes/step7-review-accept-single-column.md)
 
-**Features:**
-- Summary cards for each step
-- Edit links to return to specific steps
-- "Complete Setup" button
-- "What happens next" explanation
+### Metadata
+- **Title:** "Review & Accept"
+- **Subtitle:** "Review your configuration and accept policies to complete setup"
+- **Estimated Time:** 2-3 minutes
+- **Required:** Yes (all policies must be accepted and signature provided)
 
-**Behavior:**
-- On Complete: Create customer account, create initial workflow, redirect to Workflow Editor
+### Key Concepts
+
+**Final Review:** All previous steps are summarized with [Edit] links to return and modify if needed.
+
+**Policy Acceptance Required:** Four security and privacy policies must be explicitly accepted via checkboxes before completing setup.
+
+**Electronic Signature:** User must provide full name as electronic signature to confirm acceptance.
+
+### Data Structure
+
+```typescript
+interface Step7Data {
+  policiesAccepted: {
+    dpa: boolean;  // Data Processing Agreement
+    sla: boolean;  // Service Level Agreement
+    compliance: boolean;  // Compliance Requirements
+    auditRetention: boolean;  // Audit & Retention Policy
+  };
+  acceptedBy: string;  // Full name signature
+  acceptedAt: string;  // Timestamp (ISO 8601)
+}
+```
+
+### UI Layout (Option 3: Single Column with Card-Style Summaries)
+
+**Structure:**
+
+1. **Step Summary Cards** (single column)
+   - 6 cards (one per step 1-6)
+   - Each card shows:
+     - Step number and title
+     - [Edit] button to return to that step
+     - Compact bullet-point summary
+     - Example: "ACME Corp • United States • 3 LOBs • 200,000 docs/month"
+
+2. **Security & Privacy Policies Section**
+   - Full-width section below step summaries
+   - 4 separate policy cards (country-specific based on Step 1)
+   - Each policy card has:
+     - Policy name
+     - Detailed description
+     - Checkbox for acceptance (required)
+     - [View Document →] link (opens policy in new tab)
+
+3. **Signature Section**
+   - "Accepted By (Full Name)" text input field
+   - Required field indicator (*)
+   - Helper text: "Your electronic signature confirms acceptance of all policies"
+
+4. **Complete Setup Button**
+   - Disabled until all 4 checkboxes checked + name provided
+   - Primary action button
+   - Text: "Complete Setup"
+
+### Step Summary Format
+
+Each step card follows this format:
+
+**Step 1 Summary:**
+```
+Company Name • Country • X LOBs • Volume/month
+Drop-off: [location]
+Pick-up: [location]
+Primary Contact: [name] • [email]
+```
+
+**Step 2 Summary:**
+```
+Template: [template name]
+```
+
+**Step 3 Summary:**
+```
+Types: X templates, Avg accuracy Y%
+Example templates: Template A, Template B, Template C... (N more)
+```
+
+**Step 4 Summary:**
+```
+Validation: X rules, Y required fields, RAG enabled/disabled
+Confidence threshold: Z%
+```
+
+**Step 5 Summary:**
+```
+Volume: X docs/month across Y LOBs
+LOB 1: [name] - [volume]
+LOB 2: [name] - [volume]
+...
+```
+
+**Step 6 Summary:**
+```
+Output: JSON + CSV, Daily pickup, Audit enabled
+Retention: X days
+```
+
+### Security & Privacy Policies
+
+Four policies are displayed with country-specific content (based on Step 1 Country field):
+
+#### 1. Data Processing Agreement (DPA)
+- **Title:** Data Processing Agreement
+- **Description:** Governs how we process, store, and protect your documents and extracted data. Includes GDPR compliance (EU), CCPA compliance (California), and region-specific data residency requirements.
+- **Checkbox Required:** Yes
+- **Link:** [View Document →] (opens `/policies/dpa?country=[country_code]`)
+
+#### 2. Service Level Agreement (SLA)
+- **Title:** Service Level Agreement
+- **Description:** Defines uptime guarantees (99.9%), processing time commitments, and support response times. Includes service credits for downtime and performance remediation procedures.
+- **Checkbox Required:** Yes
+- **Link:** [View Document →] (opens `/policies/sla`)
+
+#### 3. Compliance Requirements
+- **Title:** Compliance Requirements
+- **Description:** Outlines regulatory compliance obligations including HIPAA (healthcare), SOC 2 Type II, ISO 27001, and industry-specific certifications. Details audit rights and breach notification procedures.
+- **Checkbox Required:** Yes
+- **Link:** [View Document →] (opens `/policies/compliance?country=[country_code]`)
+
+#### 4. Audit & Retention Policy
+- **Title:** Audit & Retention Policy
+- **Description:** Defines audit trail requirements, log retention periods (default 90 days), data archival procedures, and deletion policies. Includes right to audit and data retrieval guarantees.
+- **Checkbox Required:** Yes
+- **Link:** [View Document →] (opens `/policies/audit-retention`)
+
+### Validation Rules
+
+**Enabled State for "Complete Setup" Button:**
+1. All 4 policy checkboxes must be checked
+2. "Accepted By" field must be filled (minimum 2 characters)
+
+**Disabled State:**
+- Button is grayed out and unclickable
+- Hover tooltip shows: "Please accept all policies and provide your name"
+
+**On Click (when enabled):**
+1. Validate all conditions met
+2. Save Step7Data with timestamp
+3. Create workflow with all step data
+4. Show success toast: "Workflow setup complete!"
+5. Redirect to Dashboard (`/dashboard`)
+
+### Error States
+
+| Condition | Error Message | Location |
+|-----------|--------------|----------|
+| Click "Complete Setup" with unchecked policies | "Please accept all security and privacy policies" | Above policies section |
+| Click "Complete Setup" with empty "Accepted By" field | "Please provide your full name" | Below signature field |
+| Any step fails validation on final save | "Unable to complete setup. Please review all steps." | Top of page |
+
+### Side Panel Content
+
+**Panel Visible:**
+```
+YOUR PROGRESS
+──────────────────────────
+
+Step 7 of 7
+
+██████████████████ 100%
+
+Setup Complete
+
+Once you accept all policies
+and provide your signature,
+your workflow will be created
+and ready to use.
+
+──────────────────────────
+
+What Happens Next?
+
+• Workflow is created with your
+  configuration
+• You'll be redirected to the
+  Dashboard
+• You can start uploading
+  documents immediately
+• All settings can be modified
+  later
+```
+
+### Footer Actions
+
+- **Cancel:** Shows confirmation dialog: "Cancel setup? All progress will be lost."
+- **Save & Exit:** Disabled on Step 7 (cannot save incomplete workflow)
+- **← Back:** Returns to Step 6, preserves all data
+- **Complete Setup:** Primary button, validates and finalizes workflow
+
+### Behavior on Success
+
+1. **Save All Data:**
+   - Persist steps 1-7 data to database
+   - Create workflow record with status "active"
+   - Create customer account (if new customer)
+   - Associate templates with workflow
+   - Initialize audit trail
+
+2. **Show Success Feedback:**
+   - Toast notification: "Workflow setup complete!"
+   - Brief loading state (1-2 seconds) while saving
+
+3. **Redirect:**
+   - Navigate to Dashboard (`/dashboard`)
+   - Dashboard shows new workflow in "Active Workflows" section
+   - Show welcome message or tutorial prompt (optional)
+
+### Behavior on Edit
+
+If user clicks [Edit] on any step summary:
+1. Navigate to that step (e.g., Step 3)
+2. Load existing data into form
+3. Allow user to make changes
+4. On Next, validate and save changes
+5. Return to Step 7 with updated summary
+
+**Important:** Changes to Step 2 (template selection) may trigger confirmation dialog if it would reset later steps.
+
+### Summary Text (Used in Other Contexts)
+
+`"Review: 6 steps configured, 4 policies accepted, signed by [name]"`
+
+### Related Documentation
+
+- [SESSION_2026-02-10_template-creation-steps3-6.md](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) - Full design session log
+- [step7-review-accept-single-column.md](../wireframes/step7-review-accept-single-column.md) - Detailed wireframe
+- [DESIGN_SYSTEM.md](../../DESIGN_SYSTEM.md) - Color and spacing specs
+
+### Implementation Notes
+
+**Dynamic Content:**
+- Policy content must be country-specific (loaded based on Step 1 Country field)
+- Step summaries must reflect actual user inputs from each step
+- LOB count in Step 5 summary must match Step 1 input
+
+**Accessibility:**
+- All policy checkboxes must have clear labels for screen readers
+- Keyboard navigation must work for all interactive elements
+- Complete Setup button must show clear disabled state
+
+**Testing:**
+- Verify all 4 policies load correctly for different countries
+- Test edit links return to correct step with data preserved
+- Validate button enable/disable logic
+- Test success flow (save → redirect)
 
 ---
 
@@ -671,8 +1094,8 @@ or build your own from scratch
 │   ├── Step3DocumentTypes.tsx
 │   ├── Step4ValidationRules.tsx
 │   ├── Step5VolumeEstimate.tsx
-│   └── Step6OutputFormat.tsx
-└── ConfirmationScreen.tsx
+│   ├── Step6OutputFormat.tsx
+│   └── Step7ReviewAccept.tsx
 ```
 
 ### State Management
@@ -693,9 +1116,11 @@ or build your own from scratch
 | Date | Changes | Session |
 |------|---------|---------|
 | 2026-02-01 | Initial specification created with Step 1 defined | [SESSION_2026-02-01](../sessions/SESSION_2026-02-01_wizard-step1.md) |
+| 2026-02-06 | Step 2 Template Selection added | - |
+| 2026-02-10 | Steps 3-7 specifications complete, updated to 7-step wizard with Review & Accept as Step 7 | [SESSION_2026-02-10](../sessions/SESSION_2026-02-10_template-creation-steps3-6.md) |
 
 ---
 
 **Maintained by:** Design & Engineering Team
 **Review Cycle:** After each wizard session
-**Next Review:** After Step 2 design completion
+**Next Review:** After high-resolution designs complete

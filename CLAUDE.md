@@ -188,9 +188,72 @@ If verification is not possible, say so clearly.
 
 Make the change exactly as planned.
 
-5. Confirm
+5. Self-Test & Verify
 
-Explain how the user can verify success and what to do if it fails.
+Before claiming the task is complete, Claude must:
+
+**Run Build & Lint:**
+```bash
+cd frontend
+npm run build    # Must pass with no TypeScript errors
+npm run lint     # Must pass with no ESLint errors
+```
+
+If either command fails, fix the issues before proceeding.
+
+**Verify Dev Server Changes:**
+	•	Confirm the dev server is running at http://localhost:5173
+	•	State exactly what should be visible in the browser and where
+	•	If the change is not immediately visible, add a temporary marker to confirm runtime visibility
+
+**User Verification Instructions:**
+At the end of your response, include a "How to Verify" section with the **exact branch name** and these steps:
+
+```bash
+# 1. Confirm current location and branch
+pwd
+ls  # Should see frontend/ folder
+git branch --show-current
+
+# 2. Fetch and switch to the correct branch
+# If this is a NEW branch that Claude just created:
+git fetch origin <BRANCH-NAME>
+git switch -c <BRANCH-NAME> origin/<BRANCH-NAME>
+
+# If this branch ALREADY EXISTS locally:
+git pull origin <BRANCH-NAME>
+
+# Verify you're on the right branch:
+git branch --show-current
+git log --oneline -3  # Should show Claude's recent commits
+
+# 3. Enter frontend and restart Vite
+cd frontend
+rm -rf node_modules/.vite
+npm install
+npm run dev
+
+# 4. Open http://localhost:5173 in your browser
+# 5. [Specific instructions for what to check]
+```
+
+Replace `<BRANCH-NAME>` with the actual branch name (e.g., `claude/add-step2-wizard`).
+
+Claude must not claim success until:
+	•	Build + lint pass
+	•	Verification steps are documented
+	•	Branch name is explicitly stated
+
+6. Confirm
+
+Explicitly state:
+	•	**Branch name** (full name, e.g., `claude/add-step2-wizard`)
+	•	Files changed
+	•	Build and lint results
+	•	Expected visible effect in the browser
+	•	User verification command summary
+
+If any step cannot be verified, stop and ask before claiming completion.
 
 Skipping any step is an error.
 
