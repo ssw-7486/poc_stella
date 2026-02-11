@@ -1,11 +1,11 @@
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, memo, type InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const Input = memo(forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', ...props }, ref) => {
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -40,6 +40,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       </div>
     );
   }
-);
+));
 
 Input.displayName = 'Input';

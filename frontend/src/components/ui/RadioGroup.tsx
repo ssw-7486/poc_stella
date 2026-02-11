@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ChangeEvent } from 'react';
 
 interface RadioOption {
@@ -15,7 +16,7 @@ interface RadioGroupProps {
   disabled?: boolean;
 }
 
-export function RadioGroup({
+export const RadioGroup = memo(function RadioGroup({
   name,
   value,
   onChange,
@@ -73,4 +74,4 @@ export function RadioGroup({
       </div>
     </div>
   );
-}
+});

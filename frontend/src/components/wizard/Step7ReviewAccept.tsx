@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { PolicyCard } from '../ui/PolicyCard';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
@@ -20,7 +21,7 @@ interface Step7ReviewAcceptProps {
   onEditStep: (step: number) => void;
 }
 
-export function Step7ReviewAccept({
+export const Step7ReviewAccept = memo(function Step7ReviewAccept({
   data,
   onChange,
   stepSummaries,
@@ -187,4 +188,4 @@ export function Step7ReviewAccept({
       )}
     </div>
   );
-}
+});

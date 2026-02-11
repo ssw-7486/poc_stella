@@ -1,9 +1,12 @@
+import { memo } from 'react';
+import type { ReactNode } from 'react';
+
 interface BadgeProps {
   variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export function Badge({ variant = 'neutral', children }: BadgeProps) {
+export const Badge = memo(function Badge({ variant = 'neutral', children }: BadgeProps) {
   const variantStyles = {
     success: 'bg-green/10 text-green border-green/20',
     warning: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
@@ -19,4 +22,4 @@ export function Badge({ variant = 'neutral', children }: BadgeProps) {
       {children}
     </span>
   );
-}
+});

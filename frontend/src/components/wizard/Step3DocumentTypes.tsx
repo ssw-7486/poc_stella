@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
 import { MOCK_TEMPLATES, type DocumentTemplate } from '../../data/mockTemplates';
@@ -12,7 +13,7 @@ interface Step3DocumentTypesProps {
   onChange: (data: Step3Data) => void;
 }
 
-export function Step3DocumentTypes({ data, onChange }: Step3DocumentTypesProps) {
+export const Step3DocumentTypes = memo(function Step3DocumentTypes({ data, onChange }: Step3DocumentTypesProps) {
   const handleTemplateToggle = (templateId: string) => {
     const isSelected = data.selectedTemplateIds.includes(templateId);
     const newSelectedIds = isSelected
@@ -185,4 +186,4 @@ export function Step3DocumentTypes({ data, onChange }: Step3DocumentTypesProps) 
       </div>
     </div>
   );
-}
+});

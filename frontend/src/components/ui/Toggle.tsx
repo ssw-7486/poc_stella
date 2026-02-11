@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ChangeEvent } from 'react';
 
 interface ToggleProps {
@@ -9,7 +10,7 @@ interface ToggleProps {
   id?: string;
 }
 
-export function Toggle({
+export const Toggle = memo(function Toggle({
   checked,
   onChange,
   label,
@@ -77,4 +78,4 @@ export function Toggle({
       )}
     </div>
   );
-}
+});

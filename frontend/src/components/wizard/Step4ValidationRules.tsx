@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Toggle } from '../ui/Toggle';
 import { Slider } from '../ui/Slider';
 import { Checkbox } from '../ui/Checkbox';
@@ -43,7 +44,7 @@ interface Step4ValidationRulesProps {
   step3Data: Step3Data;
 }
 
-export function Step4ValidationRules({ data, onChange, step3Data }: Step4ValidationRulesProps) {
+export const Step4ValidationRules = memo(function Step4ValidationRules({ data, onChange, step3Data }: Step4ValidationRulesProps) {
   const selectedTemplates = step3Data.documentTemplates.filter(t =>
     step3Data.selectedTemplateIds.includes(t.id)
   );
@@ -288,4 +289,4 @@ export function Step4ValidationRules({ data, onChange, step3Data }: Step4Validat
       )}
     </div>
   );
-}
+});

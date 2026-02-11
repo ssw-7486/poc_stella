@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
@@ -11,7 +11,7 @@ import {
 
 export function WorkflowsCard() {
   const navigate = useNavigate();
-  const [workflows, setWorkflows] = useState<WorkflowData[]>(getAllWorkflows());
+  const [workflows, setWorkflows] = useState<WorkflowData[]>(() => getAllWorkflows());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [inProgressExpanded, setInProgressExpanded] = useState(true);
@@ -23,6 +23,11 @@ export function WorkflowsCard() {
 
   const handleResume = (workflowId: string) => {
     navigate(`/quick-start?workflowId=${workflowId}`);
+  };
+
+  const handleEdit = (workflowId: string) => {
+    // For completed workflows, always start at Step 1
+    navigate(`/quick-start?workflowId=${workflowId}&step=1`);
   };
 
   const handleDelete = (workflowId: string) => {
@@ -62,9 +67,15 @@ export function WorkflowsCard() {
     });
   };
 
-  // Group workflows by status
-  const inProgressWorkflows = workflows.filter((wf) => wf.status === 'in-progress');
-  const completedWorkflows = workflows.filter((wf) => wf.status === 'completed');
+  // Group workflows by status - memoized to prevent re-filtering on every render
+  const inProgressWorkflows = useMemo(
+    () => workflows.filter((wf) => wf.status === 'in-progress'),
+    [workflows]
+  );
+  const completedWorkflows = useMemo(
+    () => workflows.filter((wf) => wf.status === 'completed'),
+    [workflows]
+  );
 
   // Render a single workflow card
   const renderWorkflow = (workflow: WorkflowData) => (
@@ -156,12 +167,12 @@ export function WorkflowsCard() {
               {/* Progress */}
               <div className="mb-3">
                 <p className="text-xs text-navy-dark mb-1">
-                  Progress: Step {workflow.currentStep} of 6
+                  Progress: Step {workflow.currentStep} of 7
                 </p>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${(workflow.currentStep / 6) * 100}%` }}
+                    style={{ width: `${Math.min((workflow.currentStep / 7) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -178,10 +189,10 @@ export function WorkflowsCard() {
                 )}
                 {workflow.status === 'completed' && (
                   <button
-                    onClick={() => handleResume(workflow.id)}
+                    onClick={() => handleEdit(workflow.id)}
                     className="px-3 py-1.5 text-sm bg-primary-medium text-white rounded-[5px] hover:opacity-90 transition-opacity"
                   >
-                    View
+                    Edit
                   </button>
                 )}
                 <button

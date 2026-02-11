@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -5,7 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-export function Button({
+export const Button = memo(function Button({
   variant = 'primary',
   fullWidth = false,
   className = '',
@@ -38,4 +39,4 @@ export function Button({
       {children}
     </button>
   );
-}
+});

@@ -1,3 +1,6 @@
+import { memo } from 'react';
+import type { ReactNode } from 'react';
+
 interface Step2Data {
   selectedTemplateId: string;
   templateName: string;
@@ -14,7 +17,7 @@ interface TemplateOption {
   description: string;
   documentTypes: string;
   setupTime: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   isBlank?: boolean;
 }
 
@@ -125,7 +128,7 @@ const TEMPLATES: TemplateOption[] = [
   },
 ];
 
-export function Step2TemplateSelection({ data, onChange }: Step2TemplateSelectionProps) {
+export const Step2TemplateSelection = memo(function Step2TemplateSelection({ data, onChange }: Step2TemplateSelectionProps) {
   const handleSelect = (template: TemplateOption) => {
     onChange({
       selectedTemplateId: template.id,
@@ -207,4 +210,4 @@ export function Step2TemplateSelection({ data, onChange }: Step2TemplateSelectio
       )}
     </div>
   );
-}
+});
