@@ -118,8 +118,8 @@ export const FieldPropertiesPanel = memo(function FieldPropertiesPanel({
           <h3 className="text-sm font-semibold text-navy-darkest mb-4">⚙️ Field Properties</h3>
 
           <div className={`field-properties-panel ${layoutClass}`}>
-            {/* Field Name */}
-            <div>
+            {/* Field Name - spans full width in both layouts */}
+            <div className={layoutClass === 'two-column' ? 'col-span-2' : ''}>
               <Input
                 label="Field Name"
                 required
@@ -160,8 +160,8 @@ export const FieldPropertiesPanel = memo(function FieldPropertiesPanel({
               />
             </div>
 
-            {/* Confidence (Read-only) */}
-            <div>
+            {/* Confidence (Read-only) - spans full width in 2-column layout */}
+            <div className={layoutClass === 'two-column' ? 'col-span-2' : ''}>
               <label className="text-sm text-navy-darkest font-medium mb-2 block">
                 Confidence
               </label>

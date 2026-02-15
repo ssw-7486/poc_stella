@@ -118,7 +118,7 @@ export const Phase1FieldIdentification = memo(function Phase1FieldIdentification
 
       {/* Main Content - Image + Field Properties */}
       {data.samples.length > 0 && data.fields.length > 0 && (
-        <div className="grid gap-6">
+        <div className={`grid gap-6 ${isPanelVisible ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
           {/* Image Viewer */}
           <ImageViewer
             sample={currentSample}
