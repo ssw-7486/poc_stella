@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
 import { MOCK_TEMPLATES, type DocumentTemplate } from '../../data/mockTemplates';
@@ -14,6 +15,8 @@ interface Step3DocumentTypesProps {
 }
 
 export const Step3DocumentTypes = memo(function Step3DocumentTypes({ data, onChange }: Step3DocumentTypesProps) {
+  const navigate = useNavigate();
+
   const handleTemplateToggle = (templateId: string) => {
     const isSelected = data.selectedTemplateIds.includes(templateId);
     const newSelectedIds = isSelected
@@ -32,8 +35,7 @@ export const Step3DocumentTypes = memo(function Step3DocumentTypes({ data, onCha
   };
 
   const handleCreateTemplate = () => {
-    // Phase 2 feature - stub with toast message
-    alert('Feature coming soon: Template creation wizard (admin-only)');
+    navigate('/create-template');
   };
 
   const handleViewLibrary = () => {

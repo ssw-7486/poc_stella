@@ -6,6 +6,7 @@ import { JobsPage } from './pages/JobsPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { QuickStartPage } from './pages/QuickStartPage';
+import { CreateTemplatePage } from './pages/CreateTemplatePage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/documents" element={<DocumentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/quick-start" element={<QuickStartPage />} />
+        <Route path="/create-template" element={<CreateTemplatePage />} />
       </Routes>
     </BrowserRouter>
   );
