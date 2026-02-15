@@ -26,8 +26,8 @@ export const DetectedFieldsList = memo(function DetectedFieldsList({
   onFieldAdd,
 }: DetectedFieldsListProps) {
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white p-4 rounded-[5px] border-2 border-primary">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-navy-darkest">Detected Fields</h3>
         <button
           onClick={onFieldAdd}
@@ -37,17 +37,17 @@ export const DetectedFieldsList = memo(function DetectedFieldsList({
         </button>
       </div>
 
-      <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
         {fields.map((field) => (
           <button
             key={field.id}
             onClick={() => onFieldSelect(field.id)}
             className={`
-              w-full text-left p-3 rounded-[5px] border-2 transition-all
+              w-full text-left p-2.5 rounded-[5px] border-2 transition-all
               ${
                 selectedFieldId === field.id
                   ? 'border-primary bg-primary-lightest'
-                  : 'border-light-grey bg-white hover:border-navy-dark'
+                  : 'border-light-grey bg-lightest-grey hover:border-navy-dark'
               }
             `}
           >
