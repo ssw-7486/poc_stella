@@ -1,7 +1,9 @@
 import { memo, useState } from 'react';
 import { UploadZone } from './UploadZone';
 import { ImageViewer } from './ImageViewer';
-import { FieldPropertiesPanel } from './FieldPropertiesPanel';
+import { FieldStatistics } from './FieldStatistics';
+import { DetectedFieldsList } from './DetectedFieldsList';
+import { FieldPropertiesEditor } from './FieldPropertiesEditor';
 import type { Phase1Data, FieldDefinition } from '../../types/template';
 import { mockDetectFields } from '../../data/mockFieldDetection';
 
@@ -116,32 +118,52 @@ export const Phase1FieldIdentification = memo(function Phase1FieldIdentification
         </div>
       )}
 
-      {/* Main Content - Image + Field Properties */}
+      {/* Main Content */}
       {data.samples.length > 0 && data.fields.length > 0 && (
-        <div className={`grid gap-6 ${isPanelVisible ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
-          {/* Image Viewer */}
+        <div className="space-y-6">
+          {/* Image Viewer - Always full width */}
           <ImageViewer
             sample={currentSample}
             currentSampleIndex={0}
             totalSamples={data.samples.length}
           />
 
-          {/* Field Properties */}
-          <FieldPropertiesPanel
-            fields={data.fields}
-            selectedFieldId={selectedFieldId}
-            isPanelVisible={isPanelVisible}
-            onFieldUpdate={handleFieldUpdate}
-            onFieldDelete={handleFieldDelete}
-            onFieldAdd={handleFieldAdd}
-          />
+          {/* Field Statistics - Always full width */}
+          <FieldStatistics fields={data.fields} />
+
+          {/* Detected Fields + Field Properties - Side by side when panel hidden */}
+          <div className={`grid gap-6 ${isPanelVisible ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+            {/* Detected Fields List */}
+            <DetectedFieldsList
+              fields={data.fields}
+              selectedFieldId={selectedFieldId}
+              onFieldSelect={(fieldId) => setSelectedFieldId(fieldId)}
+              onFieldAdd={handleFieldAdd}
+            />
+
+            {/* Field Properties Editor */}
+            <FieldPropertiesEditor
+              field={data.fields.find((f) => f.id === selectedFieldId) || null}
+              isPanelVisible={isPanelVisible}
+              onFieldUpdate={handleFieldUpdate}
+              onFieldDelete={handleFieldDelete}
+              onFieldAdd={handleFieldAdd}
+            />
+          </div>
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty States */}
       {data.samples.length === 0 && (
         <div className="text-center py-12 text-dark-grey">
           <p className="text-sm">Upload sample documents to begin</p>
+        </div>
+      )}
+
+      {data.samples.length > 0 && data.fields.length === 0 && (
+        <div className="text-center py-8 text-dark-grey">
+          <p className="text-sm">No fields detected yet</p>
+          <p className="text-xs mt-2">Upload samples and click "Retry Detection"</p>
         </div>
       )}
     </div>
