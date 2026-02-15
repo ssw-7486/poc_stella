@@ -5,6 +5,12 @@
 
 **Demo Scenario:** Customer uploads 50 mixed invoices → automated workflow classifies and routes to appropriate OCR engines → outputs automatically created (assuming no errors) → user can retrieve when ready → CSV export available.
 
+## Canonical Specifications
+
+1st version of PRD written with ChatPRD. It was further enhanced using Git SPECs. The complete and authoritative specifications live here:
+
+→ [POC Stella Specs](specs/poc_stella/)
+
 ---
 
 ## Tech Stack (MVP - Local MacBook Pro)
