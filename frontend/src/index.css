@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Field Properties Panel Responsive Grid */
+.field-properties-panel {
+  display: grid;
+  gap: 1rem;
+  transition: grid-template-columns 300ms ease-in-out;
+}
+
+.field-properties-panel.single-column {
+  grid-template-columns: 1fr;
+}
+
+.field-properties-panel.two-column {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 1279px) {
+  .field-properties-panel.two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
 @theme {
   /* Monochrome Teal Palette */
   --color-navy-darkest: #07464C;

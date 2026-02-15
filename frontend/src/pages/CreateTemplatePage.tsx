@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Navigation } from '../components/ui/Navigation';
+import { Phase1FieldIdentification } from '../components/template/Phase1FieldIdentification';
 import type { TemplateDraft, Phase1Data, Phase2Data, Phase3Data } from '../types/template';
 import {
   getTemplateDraftById,
@@ -188,18 +189,18 @@ export const CreateTemplatePage = memo(function CreateTemplatePage() {
           {/* Phase Content */}
           <div className="bg-white rounded-xl p-6 mb-6">
             {currentPhase === 1 && (
-              <div className="text-center py-12 text-navy-dark">
-                <p className="text-lg">Phase 1: Field Identification</p>
-                <p className="text-sm mt-2">Upload samples → Auto-detect fields → Review properties</p>
-                <p className="text-xs mt-4 text-dark-grey">(Components will be added next)</p>
-              </div>
+              <Phase1FieldIdentification
+                data={phase1Data}
+                onChange={setPhase1Data}
+                isPanelVisible={isPanelVisible}
+              />
             )}
 
             {currentPhase === 2 && (
               <div className="text-center py-12 text-navy-dark">
                 <p className="text-lg">Phase 2: Data Extraction & Testing</p>
                 <p className="text-sm mt-2">Upload test samples → Review extracted data → Log corrections</p>
-                <p className="text-xs mt-4 text-dark-grey">(Components will be added next)</p>
+                <p className="text-xs mt-4 text-dark-grey">(Components will be added in Sprint 2)</p>
               </div>
             )}
 
@@ -207,7 +208,7 @@ export const CreateTemplatePage = memo(function CreateTemplatePage() {
               <div className="text-center py-12 text-navy-dark">
                 <p className="text-lg">Phase 3: Accuracy & Approval</p>
                 <p className="text-sm mt-2">Calculate accuracy → Approve if ≥{phase3Data.targetAccuracy}%</p>
-                <p className="text-xs mt-4 text-dark-grey">(Components will be added next)</p>
+                <p className="text-xs mt-4 text-dark-grey">(Components will be added in Sprint 2)</p>
               </div>
             )}
           </div>
@@ -241,10 +242,10 @@ export const CreateTemplatePage = memo(function CreateTemplatePage() {
               {currentPhase < 3 && (
                 <button
                   onClick={handleNext}
-                  disabled={!templateName.trim()}
+                  disabled={!templateName.trim() || (currentPhase === 1 && phase1Data.fields.length === 0)}
                   className="px-4 py-1.5 text-sm bg-primary text-white rounded-[5px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Next →
+                  {currentPhase === 1 ? 'Proceed to Phase 2 →' : 'Next →'}
                 </button>
               )}
               {currentPhase === 3 && (
