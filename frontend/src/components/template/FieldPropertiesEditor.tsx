@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
 import { Checkbox } from '../ui/Checkbox';
 import { Badge } from '../ui/Badge';
 import type { FieldDefinition } from '../../types/template';
@@ -20,7 +21,7 @@ const FIELD_TYPES = [
   { value: 'currency', label: 'Currency' },
   { value: 'zip-code', label: 'Zip Code' },
   { value: 'country-code', label: 'Country Code' },
-] as const;
+];
 
 export const FieldPropertiesEditor = memo(function FieldPropertiesEditor({
   field,
@@ -57,24 +58,18 @@ export const FieldPropertiesEditor = memo(function FieldPropertiesEditor({
 
         {/* Field Type */}
         <div>
-          <label className="text-sm text-navy-darkest font-medium mb-2 block">
-            Field Type <span className="text-red-500">*</span>
-          </label>
-          <select
+          <Select
+            label="Field Type"
+            options={FIELD_TYPES}
             value={field.type}
             onChange={(e) =>
               onFieldUpdate(field.id, {
                 type: e.target.value as FieldDefinition['type'],
               })
             }
-            className="w-full px-4 py-2 rounded-[5px] border border-input-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            {FIELD_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+            required
+            fullWidth
+          />
         </div>
 
         {/* Required Checkbox */}
